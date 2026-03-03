@@ -1,14 +1,1 @@
-{
-  "name": "wallet-dashboard",
-  "private": true
-}
-```
-
-4. 「Commit changes」をクリック
-
-これでリポジトリの構成はこうなります：
-```
-wallet-dashboard/
-├── public/
-│   └── index.html
-└── package.json
+{}
