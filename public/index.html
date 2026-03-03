@@ -2,52 +2,65 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Crypto Wallet Dashboard</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0B0B1A;font-family:'SF Pro Display','Segoe UI',-apple-system,sans-serif;color:#EEEEF6}
+body{background:#0B0B1A;font-family:'SF Pro Display','Segoe UI',-apple-system,sans-serif;color:#EEEEF6;overflow-x:hidden}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
 .dash{max-width:880px;margin:0 auto;padding:28px 20px;position:relative;z-index:1}
 .glow{position:fixed;top:-200px;left:30%;width:500px;height:500px;background:radial-gradient(circle,rgba(123,97,255,.3) 0%,transparent 70%);pointer-events:none;z-index:0}
-.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}
-.header-title{font-size:18px;font-weight:700;letter-spacing:-.5px}
-.status{display:flex;gap:6px;align-items:center;background:#12122A;border-radius:20px;padding:6px 14px;border:1px solid #2A2A50}
-.status-dot{width:7px;height:7px;border-radius:50%}
-.status-text{font-size:12px;color:#8888AA}
-.tabs{display:flex;margin-bottom:24px;background:#12122A;border-radius:14px;padding:4px;border:1px solid #2A2A50}
+
+/* Header */
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;gap:8px}
+.header-title{font-size:18px;font-weight:700;letter-spacing:-.5px;white-space:nowrap}
+.status{display:flex;gap:6px;align-items:center;background:#12122A;border-radius:20px;padding:6px 12px;border:1px solid #2A2A50;flex-shrink:0}
+.status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.status-text{font-size:11px;color:#8888AA;white-space:nowrap}
+
+/* Tabs */
+.tabs{display:flex;margin-bottom:20px;background:#12122A;border-radius:14px;padding:4px;border:1px solid #2A2A50}
 .tab{flex:1;padding:10px 0;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;color:#8888AA;background:transparent}
 .tab.active{background:#7B61FF;color:#fff}
-.card{background:linear-gradient(145deg,#12122A 0%,#16163A 100%);border-radius:20px;padding:28px 32px;margin-bottom:24px;border:1px solid #2A2A50;position:relative;overflow:hidden}
+
+/* Balance Card */
+.card{background:linear-gradient(145deg,#12122A 0%,#16163A 100%);border-radius:20px;padding:24px;margin-bottom:20px;border:1px solid #2A2A50;position:relative;overflow:hidden}
 .card-glow{position:absolute;top:-40px;right:-40px;width:180px;height:180px;background:radial-gradient(circle,rgba(123,97,255,.3) 0%,transparent 70%);pointer-events:none}
 .balance-label{font-size:13px;color:#8888AA;margin-bottom:8px;font-weight:500}
-.balance-row{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
-.balance-amount{font-size:42px;font-weight:800;letter-spacing:-2px;background:linear-gradient(135deg,#EEEEF6 30%,#A78BFA);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.change{font-size:15px;font-weight:600;display:flex;align-items:center;gap:3px}
+.balance-row{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.balance-amount{font-size:36px;font-weight:800;letter-spacing:-2px;background:linear-gradient(135deg,#EEEEF6 30%,#A78BFA);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.change{font-size:14px;font-weight:600;display:flex;align-items:center;gap:3px}
 .change-label{color:#8888AA;font-weight:400;font-size:12px;margin-left:4px}
-.alloc-bar{display:flex;border-radius:6px;overflow:hidden;height:6px;margin:18px 0 10px}
-.alloc-legend{display:flex;gap:20px;flex-wrap:wrap}
-.alloc-item{display:flex;align-items:center;gap:8px;font-size:12px;color:#8888AA}
+.alloc-bar{display:flex;border-radius:6px;overflow:hidden;height:6px;margin:16px 0 10px}
+.alloc-legend{display:flex;gap:16px;flex-wrap:wrap}
+.alloc-item{display:flex;align-items:center;gap:6px;font-size:12px;color:#8888AA}
 .alloc-dot{width:8px;height:8px;border-radius:50%}
 .alloc-pct{color:#EEEEF6;font-weight:600}
-.section{background:#12122A;border-radius:20px;margin-bottom:24px;border:1px solid #2A2A50}
-.section-pad{padding:24px 24px 16px}
-.chart-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+
+/* Sections */
+.section{background:#12122A;border-radius:20px;margin-bottom:20px;border:1px solid #2A2A50;overflow:hidden}
+.section-pad{padding:20px 16px 12px}
+
+/* Chart */
+.chart-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;flex-wrap:wrap;gap:12px}
 .coin-info{display:flex;align-items:center;gap:10px;margin-bottom:6px}
-.coin-name{font-weight:700;font-size:17px}
+.coin-name{font-weight:700;font-size:16px}
 .coin-sym{color:#8888AA;font-size:13px;margin-left:8px}
-.price-row{display:flex;align-items:baseline;gap:10px}
-.price-big{font-size:28px;font-weight:700;letter-spacing:-1px}
-.price-change{font-size:14px;font-weight:600}
-.period-bar{display:flex;gap:4px;background:#0B0B1A;border-radius:12px;padding:3px}
-.period-btn{background:transparent;color:#8888AA;border:none;border-radius:9px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
+.price-row{display:flex;align-items:baseline;gap:8px}
+.price-big{font-size:24px;font-weight:700;letter-spacing:-1px}
+.price-change{font-size:13px;font-weight:600}
+.period-bar{display:flex;gap:3px;background:#0B0B1A;border-radius:12px;padding:3px}
+.period-btn{background:transparent;color:#8888AA;border:none;border-radius:9px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
 .period-btn.active{background:#7B61FF;color:#fff}
-.holdings-head{padding:0 24px 14px;font-size:15px;font-weight:700;padding-top:20px}
-.holdings-cols{display:grid;grid-template-columns:2fr 1.2fr .8fr 80px 1.4fr;padding:0 24px 10px;font-size:11px;color:#8888AA;font-weight:500;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #2A2A50}
-.holdings-row{display:grid;grid-template-columns:2fr 1.2fr .8fr 80px 1.4fr;align-items:center;padding:14px 24px;cursor:pointer;transition:all .15s;border-left:3px solid transparent;border-bottom:1px solid rgba(42,42,80,.13)}
+.chart-wrap{position:relative;width:100%}
+
+/* Holdings - Desktop grid */
+.holdings-head{padding:16px 16px 12px;font-size:15px;font-weight:700}
+.holdings-cols{display:grid;grid-template-columns:2fr 1.2fr .8fr 80px 1.4fr;padding:0 16px 10px;font-size:11px;color:#8888AA;font-weight:500;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #2A2A50}
+.holdings-row{display:grid;grid-template-columns:2fr 1.2fr .8fr 80px 1.4fr;align-items:center;padding:14px 16px;cursor:pointer;transition:all .15s;border-left:3px solid transparent;border-bottom:1px solid rgba(42,42,80,.13)}
 .holdings-row:hover{background:#1A1A3A}
 .holdings-row.selected{background:rgba(123,97,255,.07);border-left-color:#7B61FF}
-.coin-cell{display:flex;align-items:center;gap:12px}
+.coin-cell{display:flex;align-items:center;gap:10px}
 .coin-cell-sym{font-weight:700;font-size:14px}
 .coin-cell-name{color:#8888AA;font-size:12px}
 .r{text-align:right}.c{text-align:center}
@@ -55,19 +68,51 @@ body{background:#0B0B1A;font-family:'SF Pro Display','Segoe UI',-apple-system,sa
 .fw6{font-weight:600}.fw7{font-weight:700}
 .f14{font-size:14px}.f13{font-size:13px}.f12{font-size:12px}
 .green{color:#00D68F}.red{color:#FF4C6A}
-.tx-row{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid rgba(42,42,80,.2)}
-.tx-icon{position:relative}
-.tx-badge{position:absolute;bottom:-3px;right:-3px;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;border:2px solid #12122A}
-.tx-info{display:flex;align-items:center;gap:14px}
-.tx-title{display:flex;align-items:center;gap:8px;margin-bottom:3px}
-.tx-name{font-weight:700;font-size:15px}
-.tx-tag{font-size:10px;font-weight:600;padding:2px 8px;border-radius:6px;text-transform:uppercase;letter-spacing:.5px}
+
+/* Holdings - Mobile card */
+.mob-row{display:flex;flex-wrap:wrap;padding:14px 16px;cursor:pointer;transition:all .15s;border-left:3px solid transparent;border-bottom:1px solid rgba(42,42,80,.13);gap:8px;align-items:center}
+.mob-row.selected{background:rgba(123,97,255,.07);border-left-color:#7B61FF}
+.mob-top{display:flex;width:100%;justify-content:space-between;align-items:center}
+.mob-right{text-align:right}
+.mob-bottom{display:flex;width:100%;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid rgba(42,42,80,.15)}
+
+/* Transaction History */
+.tx-row{display:flex;align-items:center;justify-content:space-between;padding:16px;border-bottom:1px solid rgba(42,42,80,.2);gap:12px}
+.tx-icon{position:relative;flex-shrink:0}
+.tx-badge{position:absolute;bottom:-3px;right:-3px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;border:2px solid #12122A}
+.tx-info{display:flex;align-items:center;gap:12px;min-width:0;flex:1}
+.tx-detail{min-width:0}
+.tx-title{display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap}
+.tx-name{font-weight:700;font-size:14px;white-space:nowrap}
+.tx-tag{font-size:10px;font-weight:600;padding:2px 6px;border-radius:6px;text-transform:uppercase;letter-spacing:.5px}
 .tx-date{font-size:12px;color:#8888AA}
-.tx-addr{font-size:11px;color:#8888AA;margin-top:4px;font-family:monospace}
+.tx-addr{font-size:10px;color:#8888AA;margin-top:3px;font-family:monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tx-amounts{text-align:right;flex-shrink:0}
-.tx-amt{font-weight:700;font-size:15px;font-variant-numeric:tabular-nums}
+.tx-amt{font-weight:700;font-size:14px;font-variant-numeric:tabular-nums}
 .tx-usd{font-size:12px;color:#8888AA;font-variant-numeric:tabular-nums}
 canvas{display:block}
+
+/* ---- MOBILE ---- */
+@media(max-width:680px){
+  .dash{padding:16px 12px}
+  .header{margin-bottom:16px}
+  .header-title{font-size:16px}
+  .balance-amount{font-size:28px}
+  .card{padding:20px 16px}
+  .price-big{font-size:20px}
+  .chart-header{flex-direction:column}
+  .period-bar{align-self:flex-start}
+  .tx-row{flex-wrap:wrap;padding:14px 12px}
+  .tx-addr{max-width:200px}
+  .tx-name{font-size:13px}
+  .tx-amt{font-size:13px}
+}
+@media(max-width:400px){
+  .balance-amount{font-size:24px}
+  .price-big{font-size:18px}
+  .period-btn{padding:5px 10px;font-size:11px}
+  .alloc-legend{gap:10px}
+}
 </style>
 </head>
 <body>
@@ -76,51 +121,39 @@ canvas{display:block}
 
 <script>
 (function(){
-  // ---- CONFIG ----
-  var HOLDINGS_USD = { bitcoin: 635880, ethereum: 190764, solana: 31794 };
-  var FALLBACK = { bitcoin:{usd:68500,ch:2.25}, ethereum:{usd:2005,ch:4.41}, solana:{usd:87.56,ch:4.05} };
-  var COINS = [
+  var HOLDINGS_USD={bitcoin:635880,ethereum:190764,solana:31794};
+  var FALLBACK={bitcoin:{usd:68500,ch:2.25},ethereum:{usd:2005,ch:4.41},solana:{usd:87.56,ch:4.05}};
+  var COINS=[
     {id:"bitcoin",symbol:"BTC",name:"Bitcoin",color:"#F7931A"},
     {id:"ethereum",symbol:"ETH",name:"Ethereum",color:"#627EEA"},
     {id:"solana",symbol:"SOL",name:"Solana",color:"#9945FF"}
   ];
-  var PERIODS = ["24H","7D","30D","1Y"];
-  var PERIOD_DAYS = {"24H":1,"7D":7,"30D":30,"1Y":365};
-  var TRANSACTIONS = [
+  var PERIODS=["24H","7D","30D","1Y"];
+  var PERIOD_DAYS={"24H":1,"7D":7,"30D":30,"1Y":365};
+  var TRANSACTIONS=[
     {type:"receive",symbol:"SOL",amount:1194098,date:"2026-02-24",time:"09:14:32",txHash:"5Kj8...xR3m",from:"7vH2...pQ9w"},
     {type:"send",symbol:"SOL",amount:1194098,date:"2026-02-26",time:"15:42:08",txHash:"9Fm4...bT7n",to:"3aLk...mN5v"}
   ];
 
-  // ---- STATE ----
-  var state = {
-    coins: COINS.map(function(c){
-      var f=FALLBACK[c.id]; var p=f.usd; var h=HOLDINGS_USD[c.id];
-      return {id:c.id,symbol:c.symbol,name:c.name,color:c.color,price:p,change24h:f.ch,amount:h/p,holdingUSD:h};
-    }),
-    charts: {},
-    selectedId: "bitcoin",
-    period: "30D",
-    tab: "portfolio",
-    lastUpdated: null,
-    error: null
+  var state={
+    coins:COINS.map(function(c){var f=FALLBACK[c.id],p=f.usd,h=HOLDINGS_USD[c.id];return{id:c.id,symbol:c.symbol,name:c.name,color:c.color,price:p,change24h:f.ch,amount:h/p,holdingUSD:h};}),
+    charts:{},selectedId:"bitcoin",period:"30D",tab:"portfolio",lastUpdated:null,error:null
   };
-  var chartFetched = {};
+  var chartFetched={};
+  function isMob(){return window.innerWidth<=680;}
 
-  // ---- SVG LOGOS ----
-  var LOGOS = {
-    bitcoin: '<svg width="W" height="W" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#F7931A"/><path d="M22.5 14.2c.3-2-1.2-3.1-3.3-3.8l.7-2.7-1.7-.4-.7 2.6c-.4-.1-.9-.2-1.4-.3l.7-2.6-1.7-.4-.7 2.7c-.3-.1-.7-.2-1-.2l-2.3-.6-.4 1.8s1.2.3 1.2.3c.7.2.8.6.8 1l-.8 3.2c0 0 .1 0 .1 0l-.1 0-1.1 4.5c-.1.2-.3.5-.7.4 0 0-1.2-.3-1.2-.3l-.8 1.9 2.2.6c.4.1.8.2 1.2.3l-.7 2.8 1.7.4.7-2.7c.5.1.9.2 1.4.3l-.7 2.7 1.7.4.7-2.8c2.9.5 5.1.3 6-2.3.7-2.1 0-3.3-1.5-4.1 1.1-.3 1.9-1 2.1-2.4zm-3.8 5.3c-.5 2.1-4.1 1-5.2.7l.9-3.7c1.2.3 4.9.9 4.3 3zm.5-5.4c-.5 1.9-3.4.9-4.4.7l.8-3.4c1 .2 4.1.7 3.6 2.7z" fill="white"/></svg>',
-    ethereum: '<svg width="W" height="W" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#627EEA"/><path d="M16.5 4v8.9l7.5 3.3L16.5 4z" fill="white" fill-opacity=".6"/><path d="M16.5 4L9 16.2l7.5-3.3V4z" fill="white"/><path d="M16.5 21.9v6.1l7.5-10.4-7.5 4.3z" fill="white" fill-opacity=".6"/><path d="M16.5 28v-6.1L9 17.6l7.5 10.4z" fill="white"/><path d="M16.5 20.6l7.5-4.4-7.5-3.3v7.7z" fill="white" fill-opacity=".2"/><path d="M9 16.2l7.5 4.4v-7.7L9 16.2z" fill="white" fill-opacity=".5"/></svg>',
-    solana: '<svg width="W" height="W" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#111"/><defs><linearGradient id="sg" x1="6" y1="24" x2="26" y2="8" gradientUnits="userSpaceOnUse"><stop stop-color="#9945FF"/><stop offset=".5" stop-color="#19FB9B"/><stop offset="1" stop-color="#00D1FF"/></linearGradient></defs><path d="M9.2 20.8c.1-.1.3-.2.5-.2h14.7c.3 0 .5.4.3.6l-2.5 2.5c-.1.1-.3.2-.5.2H7c-.3 0-.5-.4-.3-.6l2.5-2.5z" fill="url(#sg)"/><path d="M9.2 8.2c.1-.1.3-.2.5-.2h14.7c.3 0 .5.4.3.6l-2.5 2.5c-.1.1-.3.2-.5.2H7c-.3 0-.5-.4-.3-.6l2.5-2.5z" fill="url(#sg)"/><path d="M22.2 14.4c-.1-.1-.3-.2-.5-.2H7c-.3 0-.5.4-.3.6l2.5 2.5c.1.1.3.2.5.2h14.7c.3 0 .5-.4.3-.6l-2.5-2.5z" fill="url(#sg)"/></svg>'
+  var LOGOS={
+    bitcoin:'<svg width="W" height="W" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#F7931A"/><path d="M22.5 14.2c.3-2-1.2-3.1-3.3-3.8l.7-2.7-1.7-.4-.7 2.6c-.4-.1-.9-.2-1.4-.3l.7-2.6-1.7-.4-.7 2.7c-.3-.1-.7-.2-1-.2l-2.3-.6-.4 1.8s1.2.3 1.2.3c.7.2.8.6.8 1l-.8 3.2c0 0 .1 0 .1 0l-.1 0-1.1 4.5c-.1.2-.3.5-.7.4 0 0-1.2-.3-1.2-.3l-.8 1.9 2.2.6c.4.1.8.2 1.2.3l-.7 2.8 1.7.4.7-2.7c.5.1.9.2 1.4.3l-.7 2.7 1.7.4.7-2.8c2.9.5 5.1.3 6-2.3.7-2.1 0-3.3-1.5-4.1 1.1-.3 1.9-1 2.1-2.4zm-3.8 5.3c-.5 2.1-4.1 1-5.2.7l.9-3.7c1.2.3 4.9.9 4.3 3zm.5-5.4c-.5 1.9-3.4.9-4.4.7l.8-3.4c1 .2 4.1.7 3.6 2.7z" fill="white"/></svg>',
+    ethereum:'<svg width="W" height="W" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#627EEA"/><path d="M16.5 4v8.9l7.5 3.3L16.5 4z" fill="white" fill-opacity=".6"/><path d="M16.5 4L9 16.2l7.5-3.3V4z" fill="white"/><path d="M16.5 21.9v6.1l7.5-10.4-7.5 4.3z" fill="white" fill-opacity=".6"/><path d="M16.5 28v-6.1L9 17.6l7.5 10.4z" fill="white"/><path d="M16.5 20.6l7.5-4.4-7.5-3.3v7.7z" fill="white" fill-opacity=".2"/><path d="M9 16.2l7.5 4.4v-7.7L9 16.2z" fill="white" fill-opacity=".5"/></svg>',
+    solana:'<svg width="W" height="W" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#111"/><defs><linearGradient id="sg" x1="6" y1="24" x2="26" y2="8" gradientUnits="userSpaceOnUse"><stop stop-color="#9945FF"/><stop offset=".5" stop-color="#19FB9B"/><stop offset="1" stop-color="#00D1FF"/></linearGradient></defs><path d="M9.2 20.8c.1-.1.3-.2.5-.2h14.7c.3 0 .5.4.3.6l-2.5 2.5c-.1.1-.3.2-.5.2H7c-.3 0-.5-.4-.3-.6l2.5-2.5z" fill="url(#sg)"/><path d="M9.2 8.2c.1-.1.3-.2.5-.2h14.7c.3 0 .5.4.3.6l-2.5 2.5c-.1.1-.3.2-.5.2H7c-.3 0-.5-.4-.3-.6l2.5-2.5z" fill="url(#sg)"/><path d="M22.2 14.4c-.1-.1-.3-.2-.5-.2H7c-.3 0-.5.4-.3.6l2.5 2.5c.1.1.3.2.5.2h14.7c.3 0 .5-.4.3-.6l-2.5-2.5z" fill="url(#sg)"/></svg>'
   };
-  function logo(id,size){return LOGOS[id].replace(/W/g,size);}
+  function logo(id,s){return LOGOS[id].replace(/W/g,s);}
 
-  // ---- FORMATTERS ----
   function fUSD(v){if(v>=1e6)return"$"+(v/1e6).toFixed(2)+"M";return"$"+v.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});}
   function fPrice(v){if(v>=1)return"$"+v.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});return"$"+v.toFixed(4);}
   function fAmt(v){if(v>=1000)return v.toLocaleString("en-US",{maximumFractionDigits:2});if(v>=1)return v.toFixed(4);return v.toFixed(6);}
   function fDateP(ts,p){var d=new Date(ts);if(p==="24H")return d.getHours()+":"+String(d.getMinutes()).padStart(2,"0");if(p==="1Y")return d.getFullYear()+"/"+(d.getMonth()+1);return(d.getMonth()+1)+"/"+d.getDate();}
 
-  // ---- CHART GENERATION (fallback) ----
   function genChart(base,vol,pts,period){
     var data=[],price=base;
     for(var i=0;i<pts;i++){
@@ -133,14 +166,17 @@ canvas{display:block}
     return data;
   }
 
-  // ---- CANVAS DRAWING ----
   function drawChart(canvas,data,color,showAxis,showTip){
     if(!data||data.length<2)return;
-    var w=canvas.parentElement.offsetWidth,h=parseInt(canvas.getAttribute("data-h"))||220;
+    var par=canvas.parentElement;
+    var w=par?par.offsetWidth:300;
+    var h=parseInt(canvas.getAttribute("data-h"))||220;
+    if(w<10)w=300;
+    var mob=isMob();
     var dpr=window.devicePixelRatio||1;
     canvas.width=w*dpr;canvas.height=h*dpr;canvas.style.width=w+"px";canvas.style.height=h+"px";
     var ctx=canvas.getContext("2d");ctx.scale(dpr,dpr);ctx.clearRect(0,0,w,h);
-    var pL=showAxis?70:0,pR=10,pT=10,pB=showAxis?30:4;
+    var pL=showAxis?(mob?50:70):0,pR=10,pT=10,pB=showAxis?30:4;
     var prices=data.map(function(d){return d.price;});
     var mn=Math.min.apply(null,prices),mx=Math.max.apply(null,prices),rng=mx-mn||1;
     var cW=w-pL-pR,cH=h-pT-pB;
@@ -149,9 +185,9 @@ canvas{display:block}
     if(showAxis){
       ctx.strokeStyle="rgba(42,42,80,.27)";ctx.lineWidth=1;
       for(var g=0;g<4;g++){var gy=pT+(g/3)*cH;ctx.beginPath();ctx.moveTo(pL,gy);ctx.lineTo(w-pR,gy);ctx.stroke();}
-      ctx.fillStyle="#8888AA";ctx.font="11px -apple-system,sans-serif";ctx.textAlign="right";
-      for(var g=0;g<4;g++){var v=mx-(g/3)*rng;var lb=v>=1e6?"$"+(v/1e6).toFixed(1)+"M":v>=1e3?"$"+(v/1e3).toFixed(0)+"K":"$"+v.toFixed(0);ctx.fillText(lb,pL-10,pT+(g/3)*cH+4);}
-      ctx.textAlign="center";var st=Math.max(1,Math.floor(data.length/6));
+      ctx.fillStyle="#8888AA";ctx.font=(mob?"10":"11")+"px -apple-system,sans-serif";ctx.textAlign="right";
+      for(var g=0;g<4;g++){var v=mx-(g/3)*rng;var lb=v>=1e6?"$"+(v/1e6).toFixed(1)+"M":v>=1e3?"$"+(v/1e3).toFixed(0)+"K":"$"+v.toFixed(0);ctx.fillText(lb,pL-8,pT+(g/3)*cH+4);}
+      ctx.textAlign="center";var st=Math.max(1,Math.floor(data.length/(mob?4:6)));
       for(var i=0;i<data.length;i+=st)ctx.fillText(data[i].date,xP(i),h-5);
     }
     var grd=ctx.createLinearGradient(0,pT,0,pT+cH);grd.addColorStop(0,color+"40");grd.addColorStop(1,color+"00");
@@ -164,17 +200,21 @@ canvas{display:block}
 
     if(showTip){
       var tip=canvas.nextElementSibling;
-      canvas.onmousemove=function(e){
-        var rect=canvas.getBoundingClientRect(),mx2=e.clientX-rect.left;
+      function handleXY(cx){
+        var rect=canvas.getBoundingClientRect(),mx2=cx-rect.left;
         var idx=Math.round(((mx2-pL)/cW)*(data.length-1));idx=Math.max(0,Math.min(data.length-1,idx));
-        tip.style.display="block";tip.style.left=(mx2+15)+"px";tip.style.top="10px";
+        var tipX=mx2+15;if(tipX+150>w)tipX=mx2-160;if(tipX<0)tipX=5;
+        tip.style.display="block";tip.style.left=tipX+"px";tip.style.top="10px";
         tip.innerHTML='<div style="color:#8888AA;font-size:11px;margin-bottom:2px">'+data[idx].date+'</div><div style="color:#EEEEF6;font-size:14px;font-weight:600">$'+data[idx].price.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})+'</div>';
-      };
+      }
+      canvas.onmousemove=function(e){handleXY(e.clientX);};
+      canvas.ontouchmove=function(e){e.preventDefault();handleXY(e.touches[0].clientX);};
       canvas.onmouseleave=function(){tip.style.display="none";};
+      canvas.ontouchend=function(){setTimeout(function(){tip.style.display="none";},1500);};
     }
   }
 
-  // ---- INIT FALLBACK CHARTS ----
+  // Init fallback charts
   COINS.forEach(function(c){
     var base=FALLBACK[c.id].usd,vol=base*.02;
     PERIODS.forEach(function(p){
@@ -183,19 +223,24 @@ canvas{display:block}
     });
   });
 
-  // ---- API ----
+  // ---- API with retry ----
+  var priceRetries=0;
   function fetchPrices(){
     var ids=COINS.map(function(c){return c.id;}).join(",");
     fetch("https://api.coingecko.com/api/v3/simple/price?ids="+ids+"&vs_currencies=usd&include_24hr_change=true")
-    .then(function(r){if(!r.ok)throw new Error();return r.json();})
+    .then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.json();})
     .then(function(data){
       state.coins=COINS.map(function(c){
         var d=data[c.id]||{};var p=d.usd||FALLBACK[c.id].usd;var h=HOLDINGS_USD[c.id];
         return{id:c.id,symbol:c.symbol,name:c.name,color:c.color,price:p,change24h:d.usd_24h_change||0,amount:p>0?h/p:0,holdingUSD:h};
       });
-      state.lastUpdated=new Date();state.error=null;render();
+      state.lastUpdated=new Date();state.error=null;priceRetries=0;render();
     })
-    .catch(function(){state.error="offline";render();});
+    .catch(function(){
+      state.error="offline";priceRetries++;
+      if(priceRetries<=4)setTimeout(fetchPrices,2000*priceRetries);
+      render();
+    });
   }
 
   function fetchChart(coinId,pd){
@@ -214,122 +259,112 @@ canvas{display:block}
 
   // ---- RENDER ----
   function render(){
-    var s=state,app=document.getElementById("app");
+    var s=state,app=document.getElementById("app");if(!app)return;
+    var mob=isMob();
     var sel=s.coins.find(function(c){return c.id===s.selectedId;})||s.coins[0];
     var total=s.coins.reduce(function(a,c){return a+(c.holdingUSD||0);},0);
     var totCh=total?s.coins.reduce(function(a,c){return a+((c.holdingUSD||0)/total)*(c.change24h||0);},0):0;
     var isUp=sel.change24h>=0;
     var solP=(s.coins.find(function(c){return c.id==="solana";})||{}).price||0;
     var statusColor=s.lastUpdated?"#00D68F":s.error?"#FFA500":"#8888AA";
-    var statusText=s.lastUpdated?"Live · "+s.lastUpdated.toLocaleTimeString():s.error?"Offline":"Connecting...";
+    var statusText=s.lastUpdated?"Live · "+s.lastUpdated.toLocaleTimeString():s.error?"Offline · retrying...":"Connecting...";
     var statusAnim=s.lastUpdated?"animation:pulse 2s infinite":"";
+    var chColor=isUp?"#00D68F":"#FF4C6A";
 
-    var html='';
-    // Header
-    html+='<div class="header"><span class="header-title">Portfolio</span><div class="status"><div class="status-dot" style="background:'+statusColor+';'+statusAnim+'"></div><span class="status-text">'+statusText+'</span></div></div>';
-    // Tabs
-    html+='<div class="tabs">';
-    ["portfolio","history"].forEach(function(t){html+='<button class="tab'+(s.tab===t?' active':'')+'" onclick="ST(\''+t+'\')">'+(t==="portfolio"?"Portfolio":"History")+'</button>';});
-    html+='</div>';
+    var o='';
+    o+='<div class="header"><span class="header-title">Portfolio</span><div class="status"><div class="status-dot" style="background:'+statusColor+';'+statusAnim+'"></div><span class="status-text">'+statusText+'</span></div></div>';
+    o+='<div class="tabs">';
+    ["portfolio","history"].forEach(function(t){o+='<button class="tab'+(s.tab===t?' active':'')+'" onclick="ST(\''+t+'\')">'+(t==="portfolio"?"Portfolio":"History")+'</button>';});
+    o+='</div>';
 
     if(s.tab==="portfolio"){
-      // Balance card
-      html+='<div class="card"><div class="card-glow"></div>';
-      html+='<div class="balance-label">Total Balance</div>';
-      html+='<div class="balance-row"><span class="balance-amount">$'+total.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})+'</span>';
-      html+='<span class="change" style="color:'+(totCh>=0?"#00D68F":"#FF4C6A")+'">'+(totCh>=0?"\u25B2":"\u25BC")+' '+Math.abs(totCh).toFixed(2)+'%<span class="change-label">24h</span></span></div>';
-      html+='<div class="alloc-bar">';
-      s.coins.forEach(function(c){html+='<div style="width:'+(c.holdingUSD/total*100)+'%;background:'+c.color+';transition:width .3s"></div>';});
-      html+='</div><div class="alloc-legend">';
-      s.coins.forEach(function(c){html+='<div class="alloc-item"><div class="alloc-dot" style="background:'+c.color+'"></div>'+c.symbol+' <span class="alloc-pct">'+(c.holdingUSD/total*100).toFixed(1)+'%</span></div>';});
-      html+='</div></div>';
+      o+='<div class="card"><div class="card-glow"></div><div class="balance-label">Total Balance</div>';
+      o+='<div class="balance-row"><span class="balance-amount">$'+total.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})+'</span>';
+      o+='<span class="change" style="color:'+(totCh>=0?"#00D68F":"#FF4C6A")+'">'+(totCh>=0?"\u25B2":"\u25BC")+' '+Math.abs(totCh).toFixed(2)+'%<span class="change-label">24h</span></span></div>';
+      o+='<div class="alloc-bar">';
+      s.coins.forEach(function(c){o+='<div style="width:'+(c.holdingUSD/total*100)+'%;background:'+c.color+';transition:width .3s"></div>';});
+      o+='</div><div class="alloc-legend">';
+      s.coins.forEach(function(c){o+='<div class="alloc-item"><div class="alloc-dot" style="background:'+c.color+'"></div>'+c.symbol+' <span class="alloc-pct">'+(c.holdingUSD/total*100).toFixed(1)+'%</span></div>';});
+      o+='</div></div>';
 
       // Chart
-      var chColor=isUp?"#00D68F":"#FF4C6A";
-      html+='<div class="section section-pad"><div class="chart-header"><div><div class="coin-info">'+logo(sel.id,34)+'<div><span class="coin-name">'+sel.name+'</span><span class="coin-sym">'+sel.symbol+'</span></div></div>';
-      html+='<div class="price-row"><span class="price-big">'+fPrice(sel.price)+'</span><span class="price-change" style="color:'+chColor+'">'+(isUp?"+":"")+sel.change24h.toFixed(2)+'%</span></div></div>';
-      html+='<div class="period-bar">';
-      PERIODS.forEach(function(p){html+='<button class="period-btn'+(s.period===p?" active":"")+'" onclick="SP(\''+p+'\')">'+p+'</button>';});
-      html+='</div></div>';
-      html+='<div style="position:relative"><canvas id="mainChart" data-h="220" style="cursor:crosshair"></canvas><div id="chartTip" style="display:none;position:absolute;background:#12122A;border:1px solid #2A2A50;border-radius:8px;padding:8px 14px;box-shadow:0 4px 20px rgba(0,0,0,.5);pointer-events:none;z-index:10"></div></div></div>';
+      o+='<div class="section section-pad"><div class="chart-header"><div><div class="coin-info">'+logo(sel.id,mob?28:34)+'<div><span class="coin-name">'+sel.name+'</span><span class="coin-sym">'+sel.symbol+'</span></div></div>';
+      o+='<div class="price-row"><span class="price-big">'+fPrice(sel.price)+'</span><span class="price-change" style="color:'+chColor+'">'+(isUp?"+":"")+sel.change24h.toFixed(2)+'%</span></div></div>';
+      o+='<div class="period-bar">';
+      PERIODS.forEach(function(p){o+='<button class="period-btn'+(s.period===p?" active":"")+'" onclick="SP(\''+p+'\')">'+p+'</button>';});
+      o+='</div></div>';
+      o+='<div class="chart-wrap"><canvas id="mainChart" data-h="'+(mob?170:220)+'" style="cursor:crosshair;touch-action:none"></canvas><div id="chartTip" style="display:none;position:absolute;background:#12122A;border:1px solid #2A2A50;border-radius:8px;padding:8px 12px;box-shadow:0 4px 20px rgba(0,0,0,.5);pointer-events:none;z-index:10"></div></div></div>';
 
       // Holdings
-      html+='<div class="section"><div class="holdings-head">Holdings</div>';
-      html+='<div class="holdings-cols"><span>Asset</span><span class="r">Price</span><span class="r">24h</span><span class="c">Trend</span><span class="r">Holdings</span></div>';
+      o+='<div class="section"><div class="holdings-head">Holdings</div>';
+      if(!mob){
+        o+='<div class="holdings-cols"><span>Asset</span><span class="r">Price</span><span class="r">24h</span><span class="c">Trend</span><span class="r">Holdings</span></div>';
+      }
       s.coins.forEach(function(c){
         var pos=c.change24h>=0;var isSel=s.selectedId===c.id;
-        html+='<div class="holdings-row'+(isSel?" selected":"")+'" onclick="SC(\''+c.id+'\')">';
-        html+='<div class="coin-cell">'+logo(c.id,38)+'<div><div class="coin-cell-sym">'+c.symbol+'</div><div class="coin-cell-name">'+c.name+'</div></div></div>';
-        html+='<div class="r num fw6 f14">'+fPrice(c.price)+'</div>';
-        html+='<div class="r num fw6 f13 '+(pos?"green":"red")+'">'+(pos?"+":"")+c.change24h.toFixed(2)+'%</div>';
-        html+='<div class="c"><canvas class="miniChart" data-coin="'+c.id+'" data-h="32" style="width:80px;height:32px"></canvas></div>';
-        html+='<div class="r"><div class="num fw7 f14">'+fUSD(c.holdingUSD)+'</div><div class="num f12" style="color:#8888AA">'+fAmt(c.amount)+' '+c.symbol+'</div></div>';
-        html+='</div>';
+        if(mob){
+          o+='<div class="mob-row'+(isSel?" selected":"")+'" onclick="SC(\''+c.id+'\')">';
+          o+='<div class="mob-top"><div class="coin-cell">'+logo(c.id,32)+'<div><div class="coin-cell-sym">'+c.symbol+'</div><div class="coin-cell-name">'+c.name+'</div></div></div>';
+          o+='<div class="mob-right"><div class="num fw6 f14">'+fPrice(c.price)+'</div><div class="num fw6 f12 '+(pos?"green":"red")+'" style="text-align:right">'+(pos?"+":"")+c.change24h.toFixed(2)+'%</div></div></div>';
+          o+='<div class="mob-bottom"><div style="display:flex;align-items:center;gap:8px"><canvas class="miniChart" data-coin="'+c.id+'" data-h="28" style="width:60px;height:28px"></canvas></div>';
+          o+='<div class="r"><div class="num fw7 f13">'+fUSD(c.holdingUSD)+'</div><div class="num f12" style="color:#8888AA">'+fAmt(c.amount)+' '+c.symbol+'</div></div></div>';
+          o+='</div>';
+        }else{
+          o+='<div class="holdings-row'+(isSel?" selected":"")+'" onclick="SC(\''+c.id+'\')">';
+          o+='<div class="coin-cell">'+logo(c.id,38)+'<div><div class="coin-cell-sym">'+c.symbol+'</div><div class="coin-cell-name">'+c.name+'</div></div></div>';
+          o+='<div class="r num fw6 f14">'+fPrice(c.price)+'</div>';
+          o+='<div class="r num fw6 f13 '+(pos?"green":"red")+'">'+(pos?"+":"")+c.change24h.toFixed(2)+'%</div>';
+          o+='<div class="c"><canvas class="miniChart" data-coin="'+c.id+'" data-h="32" style="width:80px;height:32px"></canvas></div>';
+          o+='<div class="r"><div class="num fw7 f14">'+fUSD(c.holdingUSD)+'</div><div class="num f12" style="color:#8888AA">'+fAmt(c.amount)+' '+c.symbol+'</div></div>';
+          o+='</div>';
+        }
       });
-      html+='</div>';
+      o+='</div>';
     }
 
     if(s.tab==="history"){
-      html+='<div class="section"><div class="holdings-head">Transaction History</div>';
+      o+='<div class="section"><div class="holdings-head">Transaction History</div>';
       TRANSACTIONS.forEach(function(tx){
         var isR=tx.type==="receive";var usdV=tx.amount*solP;
-        html+='<div class="tx-row"><div class="tx-info"><div class="tx-icon">'+logo("solana",40)+'<div class="tx-badge" style="background:'+(isR?"#00D68F":"#FF4C6A")+'">'+(isR?"\u2193":"\u2191")+'</div></div>';
-        html+='<div><div class="tx-title"><span class="tx-name">'+(isR?"Received":"Sent")+' '+tx.symbol+'</span><span class="tx-tag" style="background:'+(isR?"#00D68F":"#FF4C6A")+'18;color:'+(isR?"#00D68F":"#FF4C6A")+'">'+(isR?"In":"Out")+'</span></div>';
-        html+='<div class="tx-date">'+tx.date+' '+tx.time+'</div>';
-        html+='<div class="tx-addr">'+(isR?"From: "+tx.from:"To: "+tx.to)+' <span style="margin:0 8px;opacity:.4">|</span>Tx: '+tx.txHash+'</div></div></div>';
-        html+='<div class="tx-amounts"><div class="tx-amt '+(isR?"green":"red")+'">'+(isR?"+":"-")+tx.amount.toLocaleString("en-US")+' '+tx.symbol+'</div><div class="tx-usd">'+fUSD(usdV)+'</div></div></div>';
+        o+='<div class="tx-row"><div class="tx-info"><div class="tx-icon">'+logo("solana",mob?34:40)+'<div class="tx-badge" style="background:'+(isR?"#00D68F":"#FF4C6A")+'">'+(isR?"\u2193":"\u2191")+'</div></div>';
+        o+='<div class="tx-detail"><div class="tx-title"><span class="tx-name">'+(isR?"Received":"Sent")+' '+tx.symbol+'</span><span class="tx-tag" style="background:'+(isR?"#00D68F":"#FF4C6A")+'18;color:'+(isR?"#00D68F":"#FF4C6A")+'">'+(isR?"In":"Out")+'</span></div>';
+        o+='<div class="tx-date">'+tx.date+' '+tx.time+'</div>';
+        o+='<div class="tx-addr">'+(isR?"From: "+tx.from:"To: "+tx.to)+' | Tx: '+tx.txHash+'</div></div></div>';
+        o+='<div class="tx-amounts"><div class="tx-amt '+(isR?"green":"red")+'">'+(isR?"+":"-")+tx.amount.toLocaleString("en-US")+' '+tx.symbol+'</div><div class="tx-usd">'+fUSD(usdV)+'</div></div></div>';
       });
-      html+='</div>';
+      o+='</div>';
     }
 
-    app.innerHTML=html;
+    app.innerHTML=o;
 
-    // Draw charts after DOM update
     requestAnimationFrame(function(){
       var mc=document.getElementById("mainChart");
-      if(mc){
-        var chartData=s.charts[s.selectedId+"_"+s.period]||[];
-        drawChart(mc,chartData,chColor||"#00D68F",true,true);
-      }
-      document.querySelectorAll(".miniChart").forEach(function(c){
-        var cid=c.getAttribute("data-coin");
+      if(mc)drawChart(mc,s.charts[s.selectedId+"_"+s.period]||[],chColor||"#00D68F",true,true);
+      document.querySelectorAll(".miniChart").forEach(function(cv){
+        var cid=cv.getAttribute("data-coin");
         var coin=s.coins.find(function(x){return x.id===cid;});
-        var d=s.charts[cid+"_7D"]||[];
-        drawChart(c,d,coin&&coin.change24h>=0?"#00D68F":"#FF4C6A",false,false);
+        drawChart(cv,s.charts[cid+"_7D"]||[],coin&&coin.change24h>=0?"#00D68F":"#FF4C6A",false,false);
       });
     });
   }
 
-  // ---- GLOBAL HANDLERS ----
   window.ST=function(t){state.tab=t;render();};
   window.SP=function(p){state.period=p;fetchChart(state.selectedId,p);render();};
   window.SC=function(id){state.selectedId=id;fetchChart(id,state.period);render();};
 
   // ---- INIT ----
   render();
-  fetchPrices();
+  setTimeout(fetchPrices,500);
   setInterval(fetchPrices,30000);
 
-  // Stagger chart fetches to avoid CoinGecko rate limit (~10-30 req/min free tier)
-  // Priority: 1) selected coin+period, 2) 7D mini charts, 3) rest
-  var priority = [
-    {id:"bitcoin",p:"30D"}, // selected coin + current period
-    {id:"bitcoin",p:"7D"},{id:"ethereum",p:"7D"},{id:"solana",p:"7D"} // mini charts
-  ];
-  var rest = [];
+  var pq=[{id:"bitcoin",p:"30D"},{id:"bitcoin",p:"7D"},{id:"ethereum",p:"7D"},{id:"solana",p:"7D"}];
+  var rq=[];
   COINS.forEach(function(c){PERIODS.forEach(function(p){
-    var already = priority.some(function(x){return x.id===c.id&&x.p===p;});
-    if(!already) rest.push({id:c.id,p:p});
+    if(!pq.some(function(x){return x.id===c.id&&x.p===p;}))rq.push({id:c.id,p:p});
   });});
-  var chartQueue = priority.concat(rest);
-  var queueTimer = null;
-  function processQueue(){
-    if(chartQueue.length===0)return;
-    var item=chartQueue.shift();
-    fetchChart(item.id,item.p);
-    queueTimer = setTimeout(processQueue, 4000); // 1 request per 4 sec
-  }
-  setTimeout(processQueue, 1500);
+  var q=pq.concat(rq);
+  function pQ(){if(!q.length)return;var it=q.shift();fetchChart(it.id,it.p);setTimeout(pQ,4000);}
+  setTimeout(pQ,2000);
 
   window.addEventListener("resize",function(){render();});
 })();
