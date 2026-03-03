@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crypto Wallet Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.7.3/Recharts.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0B0B1A; font-family: 'SF Pro Display', 'Segoe UI', -apple-system, sans-serif; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useMemo, useEffect, useCallback, useRef } = React;
+const { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Area, AreaChart } = Recharts;
+
+const COLORS = {
+  bg: "#0B0B1A", surface: "#12122A", surfaceHover: "#1A1A3A", card: "#16163A",
+  purple: "#7B61FF", purpleGlow: "rgba(123, 97, 255, 0.3)", purpleLight: "#A78BFA",
+  green: "#00D68F", red: "#FF4C6A", text: "#EEEEF6", textSecondary: "#8888AA",
+  border: "#2A2A50", gradientStart: "#7B61FF", gradientEnd: "#4F37C8",
+};
+
+const HOLDINGS_USD = { bitcoin: 635880, ethereum: 190764, solana: 31794 };
+const PERIOD_DAYS = { "24H": 1, "7D": 7, "30D": 30, "1Y": 365 };
+const PERIODS = ["24H", "7D", "30D", "1Y"];
+
+const BtcLogo = ({ size = 38 }) => (
+  <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
+    <circle cx="16" cy="16" r="16" fill="#F7931A" />
+    <path d="M22.5 14.2c.3-2-1.2-3.1-3.3-3.8l.7-2.7-1.7-.4-.7 2.6c-.4-.1-.9-.2-1.4-.3l.7-2.6-1.7-.4-.7 2.7c-.3-.1-.7-.2-1-.2l-2.3-.6-.4 1.8s1.2.3 1.2.3c.7.2.8.6.8 1l-.8 3.2c0 0 .1 0 .1 0l-.1 0-1.1 4.5c-.1.2-.3.5-.7.4 0 0-1.2-.3-1.2-.3l-.8 1.9 2.2.6c.4.1.8.2 1.2.3l-.7 2.8 1.7.4.7-2.7c.5.1.9.2 1.4.3l-.7 2.7 1.7.4.7-2.8c2.9.5 5.1.3 6-2.3.7-2.1 0-3.3-1.5-4.1 1.1-.3 1.9-1 2.1-2.4zm-3.8 5.3c-.5 2.1-4.1 1-5.2.7l.9-3.7c1.2.3 4.9.9 4.3 3zm.5-5.4c-.5 1.9-3.4.9-4.4.7l.8-3.4c1 .2 4.1.7 3.6 2.7z" fill="white"/>
+  </svg>
+);
+
+const EthLogo = ({ size = 38 }) => (
+  <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
+    <circle cx="16" cy="16" r="16" fill="#627EEA" />
+    <path d="M16.5 4v8.9l7.5 3.3L16.5 4z" fill="white" fillOpacity="0.6"/>
+    <path d="M16.5 4L9 16.2l7.5-3.3V4z" fill="white"/>
+    <path d="M16.5 21.9v6.1l7.5-10.4-7.5 4.3z" fill="white" fillOpacity="0.6"/>
+    <path d="M16.5 28v-6.1L9 17.6l7.5 10.4z" fill="white"/>
+    <path d="M16.5 20.6l7.5-4.4-7.5-3.3v7.7z" fill="white" fillOpacity="0.2"/>
+    <path d="M9 16.2l7.5 4.4v-7.7L9 16.2z" fill="white" fillOpacity="0.5"/>
+  </svg>
+);
+
+const SolLogo = ({ size = 38 }) => (
+  <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
+    <circle cx="16" cy="16" r="16" fill="#111" />
+    <defs>
+      <linearGradient id="solGrad" x1="6" y1="24" x2="26" y2="8" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#9945FF"/><stop offset="0.5" stopColor="#19FB9B"/><stop offset="1" stopColor="#00D1FF"/>
+      </linearGradient>
+    </defs>
+    <path d="M9.2 20.8c.1-.1.3-.2.5-.2h14.7c.3 0 .5.4.3.6l-2.5 2.5c-.1.1-.3.2-.5.2H7c-.3 0-.5-.4-.3-.6l2.5-2.5z" fill="url(#solGrad)"/>
+    <path d="M9.2 8.2c.1-.1.3-.2.5-.2h14.7c.3 0 .5.4.3.6l-2.5 2.5c-.1.1-.3.2-.5.2H7c-.3 0-.5-.4-.3-.6l2.5-2.5z" fill="url(#solGrad)"/>
+    <path d="M22.2 14.4c-.1-.1-.3-.2-.5-.2H7c-.3 0-.5.4-.3.6l2.5 2.5c.1.1.3.2.5.2h14.7c.3 0 .5-.4.3-.6l-2.5-2.5z" fill="url(#solGrad)"/>
+  </svg>
+);
+
+const COIN_META = [
+  { id: "bitcoin", symbol: "BTC", name: "Bitcoin", Logo: BtcLogo, color: "#F7931A" },
+  { id: "ethereum", symbol: "ETH", name: "Ethereum", Logo: EthLogo, color: "#627EEA" },
+  { id: "solana", symbol: "SOL", name: "Solana", Logo: SolLogo, color: "#9945FF" },
+];
+
+function formatDateForPeriod(ts, period) {
+  const d = new Date(ts);
+  if (period === "24H") return d.getHours() + ":" + String(d.getMinutes()).padStart(2,"0");
+  if (period === "1Y") return d.getFullYear() + "/" + (d.getMonth()+1);
+  return (d.getMonth()+1) + "/" + d.getDate();
+}
+
+function formatUSD(v) {
+  if (v >= 1e6) return "$" + (v / 1e6).toFixed(2) + "M";
+  return "$" + v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function formatPrice(v) {
+  if (v >= 1) return "$" + v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return "$" + v.toFixed(4);
+}
+function formatAmount(v) {
+  if (v >= 1000) return v.toLocaleString("en-US", { maximumFractionDigits: 2 });
+  if (v >= 1) return v.toFixed(4);
+  return v.toFixed(6);
+}
+
+function MiniChart({ data, isPositive }) {
+  return (
+    <div style={{ width: 80, height: 32 }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={data || []}>
+          <Line type="monotone" dataKey="price" stroke={isPositive ? COLORS.green : COLORS.red} strokeWidth={1.5} dot={false} />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+function CustomTooltip({ active, payload, label }) {
+  if (!active || !payload || !payload.length) return null;
+  return (
+    <div style={{ background: COLORS.surface, border: "1px solid " + COLORS.border, borderRadius: 8, padding: "8px 14px", boxShadow: "0 4px 20px rgba(0,0,0,0.5)" }}>
+      <div style={{ color: COLORS.textSecondary, fontSize: 11, marginBottom: 2 }}>{label}</div>
+      <div style={{ color: COLORS.text, fontSize: 14, fontWeight: 600 }}>
+        {"$" + payload[0].value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+      </div>
+    </div>
+  );
+}
+
+function WalletDashboard() {
+  const [coins, setCoins] = useState([]);
+  const [chartCache, setChartCache] = useState({});
+  const [selectedId, setSelectedId] = useState("bitcoin");
+  const [period, setPeriod] = useState("30D");
+  const [activeTab, setActiveTab] = useState("portfolio");
+  const [lastUpdated, setLastUpdated] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const chartFetchedRef = useRef({});
+
+  const fetchPrices = useCallback(async () => {
+    try {
+      const ids = COIN_META.map(function(c){ return c.id; }).join(",");
+      const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=" + ids + "&vs_currencies=usd&include_24hr_change=true");
+      if (!res.ok) throw new Error("Price API error");
+      const data = await res.json();
+      const updated = COIN_META.map(function(meta) {
+        const d = data[meta.id];
+        const price = d ? d.usd || 0 : 0;
+        const holdingUSD = HOLDINGS_USD[meta.id] || 0;
+        return {
+          id: meta.id, symbol: meta.symbol, name: meta.name, Logo: meta.Logo, color: meta.color,
+          price: price,
+          change24h: d ? d.usd_24h_change || 0 : 0,
+          amount: price > 0 ? holdingUSD / price : 0,
+          holdingUSD: holdingUSD,
+        };
+      });
+      setCoins(updated);
+      setLastUpdated(new Date());
+      setLoading(false);
+      setError(null);
+    } catch (e) {
+      setError("Failed to fetch prices");
+      setLoading(false);
+    }
+  }, []);
+
+  const fetchChart = useCallback(async (coinId, pd) => {
+    const key = coinId + "_" + pd;
+    if (chartFetchedRef.current[key]) return;
+    chartFetchedRef.current[key] = true;
+    try {
+      const days = PERIOD_DAYS[pd];
+      const res = await fetch("https://api.coingecko.com/api/v3/coins/" + coinId + "/market_chart?vs_currency=usd&days=" + days);
+      if (!res.ok) throw new Error("Chart API error");
+      const data = await res.json();
+      const prices = data.prices || [];
+      const step = Math.max(1, Math.floor(prices.length / (pd === "24H" ? 48 : pd === "7D" ? 42 : pd === "30D" ? 60 : 52)));
+      const chartData = prices.filter(function(_, i){ return i % step === 0 || i === prices.length - 1; }).map(function(p) {
+        return { date: formatDateForPeriod(p[0], pd), price: p[1] };
+      });
+      setChartCache(function(prev) { var n = {}; for (var k in prev) n[k] = prev[k]; n[key] = chartData; return n; });
+    } catch (e) {
+      chartFetchedRef.current[key] = false;
+    }
+  }, []);
+
+  useEffect(function() {
+    fetchPrices();
+    var interval = setInterval(fetchPrices, 30000);
+    return function() { clearInterval(interval); };
+  }, [fetchPrices]);
+
+  useEffect(function() {
+    fetchChart(selectedId, period);
+  }, [selectedId, period, fetchChart]);
+
+  useEffect(function() {
+    coins.forEach(function(c) { fetchChart(c.id, "7D"); });
+  }, [coins, fetchChart]);
+
+  const selectedCoin = coins.find(function(c){ return c.id === selectedId; }) || coins[0];
+  const totalBalance = useMemo(function(){ return coins.reduce(function(s,c){ return s + (c.holdingUSD||0); }, 0); }, [coins]);
+  const totalChange = useMemo(function(){
+    if (!totalBalance) return 0;
+    return coins.reduce(function(s,c){ return s + ((c.holdingUSD||0)/totalBalance) * (c.change24h||0); }, 0);
+  }, [coins, totalBalance]);
+
+  const currentChartData = chartCache[selectedId + "_" + period] || [];
+  const isUp = selectedCoin ? selectedCoin.change24h >= 0 : true;
+  const SelectedLogo = selectedCoin ? selectedCoin.Logo : BtcLogo;
+  const solPrice = (coins.find(function(c){ return c.id === "solana"; }) || {}).price || 0;
+
+  if (loading && coins.length === 0) {
+    return (
+      <div style={{ minHeight: "100vh", background: COLORS.bg, display: "flex", alignItems: "center", justifyContent: "center", color: COLORS.text, fontFamily: "'SF Pro Display', sans-serif" }}>
+        <div style={{ textAlign: "center" }}>
+          <div style={{ fontSize: 24, fontWeight: 700, marginBottom: 12 }}>Loading...</div>
+          <div style={{ color: COLORS.textSecondary, fontSize: 14 }}>Fetching live market data</div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ minHeight: "100vh", background: COLORS.bg, color: COLORS.text, fontFamily: "'SF Pro Display', 'Segoe UI', -apple-system, sans-serif" }}>
+      <div style={{ position: "fixed", top: -200, left: "30%", width: 500, height: 500, background: "radial-gradient(circle, " + COLORS.purpleGlow + " 0%, transparent 70%)", pointerEvents: "none", zIndex: 0 }} />
+      <div style={{ maxWidth: 880, margin: "0 auto", padding: "28px 20px", position: "relative", zIndex: 1 }}>
+
+        {/* Header */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 28 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ fontSize: 18, fontWeight: 700, letterSpacing: -0.5 }}>Portfolio</span>
+          </div>
+          <div style={{ display: "flex", gap: 6, alignItems: "center", background: COLORS.surface, borderRadius: 20, padding: "6px 14px", border: "1px solid " + COLORS.border }}>
+            <div style={{ width: 7, height: 7, borderRadius: "50%", background: error ? COLORS.red : COLORS.green, animation: error ? "none" : "pulse 2s infinite" }} />
+            <span style={{ fontSize: 12, color: COLORS.textSecondary }}>{lastUpdated ? "Live \u00B7 " + lastUpdated.toLocaleTimeString() : "Connecting..."}</span>
+          </div>
+        </div>
+
+        {/* Tab Bar */}
+        <div style={{ display: "flex", gap: 0, marginBottom: 24, background: COLORS.surface, borderRadius: 14, padding: 4, border: "1px solid " + COLORS.border }}>
+          {["portfolio", "history"].map(function(tab) {
+            return (
+              <button key={tab} onClick={function(){ setActiveTab(tab); }} style={{
+                flex: 1, padding: "10px 0", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer", transition: "all 0.2s",
+                background: activeTab === tab ? COLORS.purple : "transparent",
+                color: activeTab === tab ? "#fff" : COLORS.textSecondary,
+              }}>{tab === "portfolio" ? "Portfolio" : "History"}</button>
+            );
+          })}
+        </div>
+
+        {activeTab === "portfolio" && (
+          <div>
+
+          {/* Total Balance */}
+          <div style={{ background: "linear-gradient(145deg, " + COLORS.surface + " 0%, " + COLORS.card + " 100%)", borderRadius: 20, padding: "28px 32px", marginBottom: 24, border: "1px solid " + COLORS.border, position: "relative", overflow: "hidden" }}>
+            <div style={{ position: "absolute", top: -40, right: -40, width: 180, height: 180, background: "radial-gradient(circle, " + COLORS.purpleGlow + " 0%, transparent 70%)", pointerEvents: "none" }} />
+            <div style={{ fontSize: 13, color: COLORS.textSecondary, marginBottom: 8, fontWeight: 500 }}>Total Balance</div>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 14, flexWrap: "wrap" }}>
+              <span style={{ fontSize: 42, fontWeight: 800, letterSpacing: -2, background: "linear-gradient(135deg, " + COLORS.text + " 30%, " + COLORS.purpleLight + ")", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                {"$" + totalBalance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
+              <span style={{ fontSize: 15, fontWeight: 600, color: totalChange >= 0 ? COLORS.green : COLORS.red, display: "flex", alignItems: "center", gap: 3 }}>
+                {totalChange >= 0 ? "\u25B2" : "\u25BC"} {Math.abs(totalChange).toFixed(2)}%
+                <span style={{ color: COLORS.textSecondary, fontWeight: 400, fontSize: 12, marginLeft: 4 }}>24h</span>
+              </span>
+            </div>
+            <div style={{ marginTop: 18 }}>
+              <div style={{ display: "flex", borderRadius: 6, overflow: "hidden", height: 6, marginBottom: 10 }}>
+                {coins.map(function(c){ return <div key={c.id} style={{ width: (c.holdingUSD / totalBalance * 100) + "%", background: c.color, transition: "width 0.3s" }} />; })}
+              </div>
+              <div style={{ display: "flex", gap: 20, flexWrap: "wrap" }}>
+                {coins.map(function(c){
+                  return (
+                    <div key={c.id} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <div style={{ width: 8, height: 8, borderRadius: "50%", background: c.color }} />
+                      <span style={{ fontSize: 12, color: COLORS.textSecondary }}>{c.symbol} <span style={{ color: COLORS.text, fontWeight: 600 }}>{(c.holdingUSD / totalBalance * 100).toFixed(1)}%</span></span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Chart Section */}
+          <div style={{ background: COLORS.surface, borderRadius: 20, padding: "24px 24px 16px", marginBottom: 24, border: "1px solid " + COLORS.border }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
+              <div>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+                  <SelectedLogo size={34} />
+                  <div>
+                    <span style={{ fontWeight: 700, fontSize: 17 }}>{selectedCoin ? selectedCoin.name : ""}</span>
+                    <span style={{ color: COLORS.textSecondary, fontSize: 13, marginLeft: 8 }}>{selectedCoin ? selectedCoin.symbol : ""}</span>
+                  </div>
+                </div>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
+                  <span style={{ fontSize: 28, fontWeight: 700, letterSpacing: -1 }}>{formatPrice(selectedCoin ? selectedCoin.price : 0)}</span>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: isUp ? COLORS.green : COLORS.red }}>{isUp ? "+" : ""}{(selectedCoin ? selectedCoin.change24h : 0).toFixed(2)}%</span>
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: 4, background: COLORS.bg, borderRadius: 12, padding: 3 }}>
+                {PERIODS.map(function(p){
+                  return <button key={p} onClick={function(){ setPeriod(p); }} style={{ background: period === p ? COLORS.purple : "transparent", color: period === p ? "#fff" : COLORS.textSecondary, border: "none", borderRadius: 9, padding: "6px 14px", fontSize: 12, fontWeight: 600, cursor: "pointer", transition: "all 0.2s" }}>{p}</button>;
+                })}
+              </div>
+            </div>
+            <div style={{ height: 220 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={currentChartData}>
+                  <defs>
+                    <linearGradient id="chartGradFill" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor={isUp ? COLORS.green : COLORS.red} stopOpacity={0.25} />
+                      <stop offset="100%" stopColor={isUp ? COLORS.green : COLORS.red} stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: COLORS.textSecondary, fontSize: 11 }} interval={Math.max(1, Math.floor((currentChartData.length || 1) / 6))} />
+                  <YAxis domain={["auto", "auto"]} axisLine={false} tickLine={false} tick={{ fill: COLORS.textSecondary, fontSize: 11 }} width={80}
+                    tickFormatter={function(v) {
+                      if (v >= 1e6) return "$" + (v / 1e6).toFixed(1) + "M";
+                      if (v >= 1e3) return "$" + (v / 1e3).toFixed(0) + "K";
+                      return "$" + v.toFixed(0);
+                    }} />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Area type="monotone" dataKey="price" stroke={isUp ? COLORS.green : COLORS.red} strokeWidth={2.5} fill="url(#chartGradFill)" dot={false} activeDot={{ r: 5, fill: isUp ? COLORS.green : COLORS.red, stroke: COLORS.bg, strokeWidth: 2 }} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Holdings List */}
+          <div style={{ background: COLORS.surface, borderRadius: 20, padding: "20px 0", marginBottom: 24, border: "1px solid " + COLORS.border }}>
+            <div style={{ padding: "0 24px 14px", fontSize: 15, fontWeight: 700 }}>Holdings</div>
+            <div style={{ display: "grid", gridTemplateColumns: "2fr 1.2fr 0.8fr 80px 1.4fr", padding: "0 24px 10px", fontSize: 11, color: COLORS.textSecondary, fontWeight: 500, textTransform: "uppercase", letterSpacing: 0.5, borderBottom: "1px solid " + COLORS.border }}>
+              <span>Asset</span><span style={{ textAlign: "right" }}>Price</span><span style={{ textAlign: "right" }}>24h</span><span style={{ textAlign: "center" }}>Trend</span><span style={{ textAlign: "right" }}>Holdings</span>
+            </div>
+            {coins.map(function(coin) {
+              var positive = coin.change24h >= 0;
+              var isSel = selectedId === coin.id;
+              var CoinLogo = coin.Logo;
+              return (
+                <div key={coin.id} onClick={function(){ setSelectedId(coin.id); }}
+                  style={{ display: "grid", gridTemplateColumns: "2fr 1.2fr 0.8fr 80px 1.4fr", alignItems: "center", padding: "14px 24px", cursor: "pointer", transition: "all 0.15s", background: isSel ? COLORS.purple + "11" : "transparent", borderLeft: isSel ? "3px solid " + COLORS.purple : "3px solid transparent", borderBottom: "1px solid " + COLORS.border + "22" }}
+                  onMouseEnter={function(e){ if (!isSel) e.currentTarget.style.background = COLORS.surfaceHover; }}
+                  onMouseLeave={function(e){ e.currentTarget.style.background = isSel ? COLORS.purple + "11" : "transparent"; }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <CoinLogo size={38} />
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: 14 }}>{coin.symbol}</div>
+                      <div style={{ color: COLORS.textSecondary, fontSize: 12 }}>{coin.name}</div>
+                    </div>
+                  </div>
+                  <div style={{ textAlign: "right", fontWeight: 600, fontSize: 14, fontVariantNumeric: "tabular-nums" }}>{formatPrice(coin.price)}</div>
+                  <div style={{ textAlign: "right", fontWeight: 600, fontSize: 13, color: positive ? COLORS.green : COLORS.red, fontVariantNumeric: "tabular-nums" }}>{positive ? "+" : ""}{coin.change24h.toFixed(2)}%</div>
+                  <div style={{ display: "flex", justifyContent: "center" }}><MiniChart data={chartCache[coin.id + "_7D"] || []} isPositive={positive} /></div>
+                  <div style={{ textAlign: "right" }}>
+                    <div style={{ fontWeight: 700, fontSize: 14, fontVariantNumeric: "tabular-nums" }}>{formatUSD(coin.holdingUSD)}</div>
+                    <div style={{ color: COLORS.textSecondary, fontSize: 12, fontVariantNumeric: "tabular-nums" }}>{formatAmount(coin.amount)} {coin.symbol}</div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          </div>
+        )}
+
+        {activeTab === "history" && (
+          <div style={{ background: COLORS.surface, borderRadius: 20, padding: "20px 0", marginBottom: 24, border: "1px solid " + COLORS.border }}>
+            <div style={{ padding: "0 24px 14px", fontSize: 15, fontWeight: 700 }}>Transaction History</div>
+            {[
+              { id: 1, type: "receive", symbol: "SOL", name: "Solana", Logo: SolLogo, color: "#9945FF", amount: 1194098, date: "2026-02-24", time: "09:14:32", txHash: "5Kj8...xR3m", from: "7vH2...pQ9w" },
+              { id: 2, type: "send", symbol: "SOL", name: "Solana", Logo: SolLogo, color: "#9945FF", amount: 1194098, date: "2026-02-26", time: "15:42:08", txHash: "9Fm4...bT7n", to: "3aLk...mN5v" },
+            ].map(function(tx) {
+              var isReceive = tx.type === "receive";
+              var TxLogo = tx.Logo;
+              var usdValue = tx.amount * solPrice;
+              return (
+                <div key={tx.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 24px", borderBottom: "1px solid " + COLORS.border + "33", transition: "background 0.15s", cursor: "default" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                    <div style={{ position: "relative" }}>
+                      <TxLogo size={40} />
+                      <div style={{ position: "absolute", bottom: -3, right: -3, width: 20, height: 20, borderRadius: "50%", background: isReceive ? COLORS.green : COLORS.red, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: "#fff", border: "2px solid " + COLORS.surface }}>
+                        {isReceive ? "\u2193" : "\u2191"}
+                      </div>
+                    </div>
+                    <div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
+                        <span style={{ fontWeight: 700, fontSize: 15, color: COLORS.text }}>{isReceive ? "Received" : "Sent"} {tx.symbol}</span>
+                        <span style={{ fontSize: 10, fontWeight: 600, padding: "2px 8px", borderRadius: 6, background: (isReceive ? COLORS.green : COLORS.red) + "18", color: isReceive ? COLORS.green : COLORS.red, textTransform: "uppercase", letterSpacing: 0.5 }}>
+                          {isReceive ? "In" : "Out"}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: 12, color: COLORS.textSecondary }}>{tx.date} {tx.time}</div>
+                      <div style={{ fontSize: 11, color: COLORS.textSecondary, marginTop: 4, fontFamily: "monospace" }}>
+                        {isReceive ? "From: " + tx.from : "To: " + tx.to}
+                        <span style={{ margin: "0 8px", opacity: 0.4 }}>|</span>
+                        Tx: {tx.txHash}
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ textAlign: "right", flexShrink: 0 }}>
+                    <div style={{ fontWeight: 700, fontSize: 15, fontVariantNumeric: "tabular-nums", color: isReceive ? COLORS.green : COLORS.red }}>
+                      {isReceive ? "+" : "-"}{tx.amount.toLocaleString("en-US")} {tx.symbol}
+                    </div>
+                    <div style={{ fontSize: 12, color: COLORS.textSecondary, fontVariantNumeric: "tabular-nums" }}>{formatUSD(usdValue)}</div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<WalletDashboard />);
+</script>
+</body>
+</html>
