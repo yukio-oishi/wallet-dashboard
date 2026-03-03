@@ -208,9 +208,19 @@ canvas{display:block}
         tip.innerHTML='<div style="color:#8888AA;font-size:11px;margin-bottom:2px">'+data[idx].date+'</div><div style="color:#EEEEF6;font-size:14px;font-weight:600">$'+data[idx].price.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})+'</div>';
       }
       canvas.onmousemove=function(e){handleXY(e.clientX);};
-      canvas.ontouchmove=function(e){e.preventDefault();handleXY(e.touches[0].clientX);};
       canvas.onmouseleave=function(){tip.style.display="none";};
-      canvas.ontouchend=function(){setTimeout(function(){tip.style.display="none";},1500);};
+      var touchStartX=0,touchStartY=0,isHoriz=false;
+      canvas.ontouchstart=function(e){
+        touchStartX=e.touches[0].clientX;touchStartY=e.touches[0].clientY;isHoriz=false;
+      };
+      canvas.ontouchmove=function(e){
+        var dx=Math.abs(e.touches[0].clientX-touchStartX);
+        var dy=Math.abs(e.touches[0].clientY-touchStartY);
+        if(!isHoriz&&dy>dx)return; // vertical scroll - don't interfere
+        if(dx>10)isHoriz=true;
+        if(isHoriz){e.preventDefault();handleXY(e.touches[0].clientX);}
+      };
+      canvas.ontouchend=function(){if(isHoriz)setTimeout(function(){tip.style.display="none";},1200);};
     }
   }
 
@@ -293,7 +303,7 @@ canvas{display:block}
       o+='<div class="period-bar">';
       PERIODS.forEach(function(p){o+='<button class="period-btn'+(s.period===p?" active":"")+'" onclick="SP(\''+p+'\')">'+p+'</button>';});
       o+='</div></div>';
-      o+='<div class="chart-wrap"><canvas id="mainChart" data-h="'+(mob?170:220)+'" style="cursor:crosshair;touch-action:none"></canvas><div id="chartTip" style="display:none;position:absolute;background:#12122A;border:1px solid #2A2A50;border-radius:8px;padding:8px 12px;box-shadow:0 4px 20px rgba(0,0,0,.5);pointer-events:none;z-index:10"></div></div></div>';
+      o+='<div class="chart-wrap"><canvas id="mainChart" data-h="'+(mob?170:220)+'" style="cursor:crosshair"></canvas><div id="chartTip" style="display:none;position:absolute;background:#12122A;border:1px solid #2A2A50;border-radius:8px;padding:8px 12px;box-shadow:0 4px 20px rgba(0,0,0,.5);pointer-events:none;z-index:10"></div></div></div>';
 
       // Holdings
       o+='<div class="section"><div class="holdings-head">Holdings</div>';
