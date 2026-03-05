@@ -122,7 +122,7 @@ canvas{display:block}
 
 <script>
 (function(){
-  var HOLDINGS_USD={bitcoin:635880,ethereum:190764,solana:31794};
+  var HOLDINGS_AMT={bitcoin:9.2828,ethereum:95.1441,solana:363.1064};
   var FALLBACK={bitcoin:{usd:68500,ch:2.25},ethereum:{usd:2005,ch:4.41},solana:{usd:87.56,ch:4.05}};
   var COINS=[
     {id:"bitcoin",symbol:"BTC",name:"Bitcoin",color:"#F7931A"},
@@ -132,12 +132,12 @@ canvas{display:block}
   var PERIODS=["24H","7D","30D","1Y"];
   var PERIOD_DAYS={"24H":1,"7D":7,"30D":30,"1Y":365};
   var TRANSACTIONS=[
-    {type:"receive",symbol:"SOL",amount:1194098,date:"2026-02-24",time:"09:14:32",txHash:"5Kj8...xR3m",from:"7vH2...pQ9w"},
-    {type:"send",symbol:"SOL",amount:1194098,date:"2026-02-26",time:"15:42:08",txHash:"9Fm4...bT7n",to:"3aLk...mN5v"}
+    {type:"send",symbol:"SOL",amount:1194098,date:"2026-02-26",time:"15:42:08",txHash:"9Fm4...bT7n",to:"3aLk...mN5v"},
+    {type:"receive",symbol:"SOL",amount:1194098,date:"2026-02-24",time:"09:14:32",txHash:"5Kj8...xR3m",from:"7vH2...pQ9w"}
   ];
 
   var state={
-    coins:COINS.map(function(c){var f=FALLBACK[c.id],p=f.usd,h=HOLDINGS_USD[c.id];return{id:c.id,symbol:c.symbol,name:c.name,color:c.color,price:p,change24h:f.ch,amount:h/p,holdingUSD:h};}),
+    coins:COINS.map(function(c){var f=FALLBACK[c.id],p=f.usd,a=HOLDINGS_AMT[c.id];return{id:c.id,symbol:c.symbol,name:c.name,color:c.color,price:p,change24h:f.ch,amount:a,holdingUSD:a*p};}),
     charts:{},selectedId:"bitcoin",period:"30D",tab:"portfolio",lastUpdated:null,error:null
   };
   var chartFetched={};
@@ -242,8 +242,8 @@ canvas{display:block}
     .then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.json();})
     .then(function(data){
       state.coins=COINS.map(function(c){
-        var d=data[c.id]||{};var p=d.usd||FALLBACK[c.id].usd;var h=HOLDINGS_USD[c.id];
-        return{id:c.id,symbol:c.symbol,name:c.name,color:c.color,price:p,change24h:d.usd_24h_change||0,amount:p>0?h/p:0,holdingUSD:h};
+        var d=data[c.id]||{};var p=d.usd||FALLBACK[c.id].usd;var a=HOLDINGS_AMT[c.id];
+        return{id:c.id,symbol:c.symbol,name:c.name,color:c.color,price:p,change24h:d.usd_24h_change||0,amount:a,holdingUSD:a*p};
       });
       state.lastUpdated=new Date();state.error=null;priceRetries=0;render();
     })
