@@ -6,12 +6,11 @@
 <title>Crypto Wallet Dashboard</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-html{background:#0B0B1A}
-body{background:#0B0B1A;font-family:'SF Pro Display','Segoe UI',-apple-system,sans-serif;color:#EEEEF6;-webkit-overflow-scrolling:touch;overflow-y:auto;overflow-x:hidden}
+html,body{background:#0B0B1A}
+body{font-family:'SF Pro Display','Segoe UI',-apple-system,sans-serif;color:#EEEEF6}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
-.wrap{width:100%;overflow-x:hidden;position:relative}
-.dash{max-width:880px;margin:0 auto;padding:28px 20px 80px;position:relative;z-index:1;overflow-x:hidden}
-.glow{position:absolute;top:-200px;left:30%;width:500px;height:500px;background:radial-gradient(circle,rgba(123,97,255,.3) 0%,transparent 70%);pointer-events:none;z-index:0;overflow:hidden}
+.dash{max-width:880px;margin:0 auto;padding:28px 20px 80px;position:relative;z-index:1}
+.glow{position:absolute;top:-200px;left:30%;width:500px;height:500px;background:radial-gradient(circle,rgba(123,97,255,.3) 0%,transparent 70%);pointer-events:none;z-index:0}
 
 /* Header */
 .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;gap:8px}
@@ -22,7 +21,7 @@ body{background:#0B0B1A;font-family:'SF Pro Display','Segoe UI',-apple-system,sa
 
 /* Tabs */
 .tabs{display:flex;margin-bottom:20px;background:#12122A;border-radius:14px;padding:4px;border:1px solid #2A2A50}
-.tab{flex:1;padding:10px 0;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;color:#8888AA;background:transparent}
+.tab{flex:1;padding:10px 0;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;color:#8888AA;background:transparent;-webkit-appearance:none}
 .tab.active{background:#7B61FF;color:#fff}
 
 /* Balance Card */
@@ -40,7 +39,7 @@ body{background:#0B0B1A;font-family:'SF Pro Display','Segoe UI',-apple-system,sa
 .alloc-pct{color:#EEEEF6;font-weight:600}
 
 /* Sections */
-.section{background:#12122A;border-radius:20px;margin-bottom:20px;border:1px solid #2A2A50;overflow:hidden;max-width:100%}
+.section{background:#12122A;border-radius:20px;margin-bottom:20px;border:1px solid #2A2A50;overflow:hidden}
 .section-pad{padding:20px 16px 12px}
 
 /* Chart */
@@ -52,7 +51,7 @@ body{background:#0B0B1A;font-family:'SF Pro Display','Segoe UI',-apple-system,sa
 .price-big{font-size:24px;font-weight:700;letter-spacing:-1px}
 .price-change{font-size:13px;font-weight:600}
 .period-bar{display:flex;gap:3px;background:#0B0B1A;border-radius:12px;padding:3px}
-.period-btn{background:transparent;color:#8888AA;border:none;border-radius:9px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
+.period-btn{background:transparent;color:#8888AA;border:none;border-radius:9px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;-webkit-appearance:none}
 .period-btn.active{background:#7B61FF;color:#fff}
 .chart-wrap{position:relative;width:100%}
 
@@ -83,16 +82,17 @@ body{background:#0B0B1A;font-family:'SF Pro Display','Segoe UI',-apple-system,sa
 .tx-icon{position:relative;flex-shrink:0}
 .tx-badge{position:absolute;bottom:-3px;right:-3px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;border:2px solid #12122A}
 .tx-info{display:flex;align-items:center;gap:12px;min-width:0;flex:1}
-.tx-detail{min-width:0}
+.tx-detail{min-width:0;overflow:hidden}
 .tx-title{display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap}
 .tx-name{font-weight:700;font-size:14px;white-space:nowrap}
 .tx-tag{font-size:10px;font-weight:600;padding:2px 6px;border-radius:6px;text-transform:uppercase;letter-spacing:.5px}
 .tx-date{font-size:12px;color:#8888AA}
 .tx-addr{font-size:10px;color:#8888AA;margin-top:3px;font-family:monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tx-amounts{text-align:right;flex-shrink:0}
-.tx-amt{font-weight:700;font-size:14px;font-variant-numeric:tabular-nums;word-break:break-all}
+.tx-amt{font-weight:700;font-size:14px;font-variant-numeric:tabular-nums}
 .tx-usd{font-size:12px;color:#8888AA;font-variant-numeric:tabular-nums}
 canvas{display:block}
+.pagi-btn{border:none;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:600;-webkit-appearance:none;cursor:pointer}
 
 /* ---- MOBILE ---- */
 @media(max-width:680px){
@@ -107,7 +107,7 @@ canvas{display:block}
   .tx-row{flex-direction:column;align-items:flex-start;padding:14px 12px;gap:10px}
   .tx-info{width:100%}
   .tx-amounts{width:100%;text-align:left;padding-left:52px}
-  .tx-addr{max-width:calc(100vw - 100px)}
+  .tx-addr{max-width:calc(100vw - 80px)}
   .tx-name{font-size:13px}
   .tx-amt{font-size:13px}
 }
@@ -120,10 +120,8 @@ canvas{display:block}
 </style>
 </head>
 <body>
-<div class="wrap">
 <div class="glow"></div>
 <div class="dash" id="app"></div>
-</div>
 
 <script>
 (function(){
@@ -370,9 +368,9 @@ canvas{display:block}
       // Pagination
       if(totalPages>1){
         o+='<div style="display:flex;justify-content:center;align-items:center;gap:12px;padding:16px 0">';
-        o+='<button onclick="HP(-1)" style="background:'+(page>0?'#7B61FF':'#2A2A50')+';color:'+(page>0?'#fff':'#555')+';border:none;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:600;cursor:'+(page>0?'pointer':'default')+'">\u2190 Prev</button>';
+        o+='<button class="pagi-btn" onclick="HP(-1)" style="background:'+(page>0?'#7B61FF':'#2A2A50')+';color:'+(page>0?'#fff':'#555')+'">\u2190 Prev</button>';
         o+='<span style="color:#8888AA;font-size:13px">'+(page+1)+' / '+totalPages+'</span>';
-        o+='<button onclick="HP(1)" style="background:'+(page<totalPages-1?'#7B61FF':'#2A2A50')+';color:'+(page<totalPages-1?'#fff':'#555')+';border:none;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:600;cursor:'+(page<totalPages-1?'pointer':'default')+'">Next \u2192</button>';
+        o+='<button class="pagi-btn" onclick="HP(1)" style="background:'+(page<totalPages-1?'#7B61FF':'#2A2A50')+';color:'+(page<totalPages-1?'#fff':'#555')+'">Next \u2192</button>';
         o+='</div>';
       }
       o+='</div>';
