@@ -6,11 +6,12 @@
 <title>Crypto Wallet Dashboard</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{background:#0B0B1A;min-height:100%;overflow-x:hidden}
-body{font-family:'SF Pro Display','Segoe UI',-apple-system,sans-serif;color:#EEEEF6;-webkit-overflow-scrolling:touch;overflow-y:scroll}
+html{background:#0B0B1A}
+body{background:#0B0B1A;font-family:'SF Pro Display','Segoe UI',-apple-system,sans-serif;color:#EEEEF6;-webkit-overflow-scrolling:touch;overflow-y:auto;overflow-x:hidden}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
-.dash{max-width:880px;margin:0 auto;padding:28px 20px 80px;position:relative;z-index:1}
-.glow{position:absolute;top:-200px;left:30%;width:500px;height:500px;background:radial-gradient(circle,rgba(123,97,255,.3) 0%,transparent 70%);pointer-events:none;z-index:0}
+.wrap{width:100%;overflow-x:hidden;position:relative}
+.dash{max-width:880px;margin:0 auto;padding:28px 20px 80px;position:relative;z-index:1;overflow-x:hidden}
+.glow{position:absolute;top:-200px;left:30%;width:500px;height:500px;background:radial-gradient(circle,rgba(123,97,255,.3) 0%,transparent 70%);pointer-events:none;z-index:0;overflow:hidden}
 
 /* Header */
 .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;gap:8px}
@@ -39,7 +40,7 @@ body{font-family:'SF Pro Display','Segoe UI',-apple-system,sans-serif;color:#EEE
 .alloc-pct{color:#EEEEF6;font-weight:600}
 
 /* Sections */
-.section{background:#12122A;border-radius:20px;margin-bottom:20px;border:1px solid #2A2A50;overflow:hidden}
+.section{background:#12122A;border-radius:20px;margin-bottom:20px;border:1px solid #2A2A50;overflow:hidden;max-width:100%}
 .section-pad{padding:20px 16px 12px}
 
 /* Chart */
@@ -89,13 +90,13 @@ body{font-family:'SF Pro Display','Segoe UI',-apple-system,sans-serif;color:#EEE
 .tx-date{font-size:12px;color:#8888AA}
 .tx-addr{font-size:10px;color:#8888AA;margin-top:3px;font-family:monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tx-amounts{text-align:right;flex-shrink:0}
-.tx-amt{font-weight:700;font-size:14px;font-variant-numeric:tabular-nums}
+.tx-amt{font-weight:700;font-size:14px;font-variant-numeric:tabular-nums;word-break:break-all}
 .tx-usd{font-size:12px;color:#8888AA;font-variant-numeric:tabular-nums}
 canvas{display:block}
 
 /* ---- MOBILE ---- */
 @media(max-width:680px){
-  .dash{padding:16px 12px}
+  .dash{padding:16px 12px 100px}
   .header{margin-bottom:16px}
   .header-title{font-size:16px}
   .balance-amount{font-size:28px}
@@ -103,8 +104,10 @@ canvas{display:block}
   .price-big{font-size:20px}
   .chart-header{flex-direction:column}
   .period-bar{align-self:flex-start}
-  .tx-row{flex-wrap:wrap;padding:14px 12px}
-  .tx-addr{max-width:200px}
+  .tx-row{flex-direction:column;align-items:flex-start;padding:14px 12px;gap:10px}
+  .tx-info{width:100%}
+  .tx-amounts{width:100%;text-align:left;padding-left:52px}
+  .tx-addr{max-width:calc(100vw - 100px)}
   .tx-name{font-size:13px}
   .tx-amt{font-size:13px}
 }
@@ -117,8 +120,10 @@ canvas{display:block}
 </style>
 </head>
 <body>
+<div class="wrap">
 <div class="glow"></div>
 <div class="dash" id="app"></div>
+</div>
 
 <script>
 (function(){
@@ -158,7 +163,7 @@ canvas{display:block}
 
   var state={
     coins:COINS.map(function(c){var f=FALLBACK[c.id],p=f.usd,a=HOLDINGS_AMT[c.id];return{id:c.id,symbol:c.symbol,name:c.name,color:c.color,price:p,change24h:f.ch,amount:a,holdingUSD:a*p};}),
-    charts:{},selectedId:"bitcoin",period:"30D",tab:"portfolio",lastUpdated:null,error:null
+    charts:{},selectedId:"bitcoin",period:"30D",tab:"portfolio",lastUpdated:null,error:null,historyPage:0
   };
   var chartFetched={};
   function isMob(){return window.innerWidth<=680;}
@@ -343,8 +348,15 @@ canvas{display:block}
     }
 
     if(s.tab==="history"){
+      var PER_PAGE=10;
+      var totalPages=Math.ceil(TRANSACTIONS.length/PER_PAGE);
+      var page=s.historyPage||0;
+      if(page>=totalPages)page=totalPages-1;
+      var start=page*PER_PAGE;
+      var pageTx=TRANSACTIONS.slice(start,start+PER_PAGE);
+
       o+='<div class="section"><div class="holdings-head">Transaction History</div>';
-      TRANSACTIONS.forEach(function(tx){
+      pageTx.forEach(function(tx){
         var isR=tx.type==="receive";
         var coinId=SYM_TO_ID[tx.symbol]||"bitcoin";
         var coinPrice=(s.coins.find(function(c){return c.id===coinId;})||{}).price||0;
@@ -355,6 +367,14 @@ canvas{display:block}
         o+='<div class="tx-addr">'+(isR?"From: "+tx.from:"To: "+tx.to)+' | Tx: '+tx.txHash+'</div></div></div>';
         o+='<div class="tx-amounts"><div class="tx-amt '+(isR?"green":"red")+'">'+(isR?"+":"-")+tx.amount.toLocaleString("en-US")+' '+tx.symbol+'</div><div class="tx-usd">'+fUSD(usdV)+'</div></div></div>';
       });
+      // Pagination
+      if(totalPages>1){
+        o+='<div style="display:flex;justify-content:center;align-items:center;gap:12px;padding:16px 0">';
+        o+='<button onclick="HP(-1)" style="background:'+(page>0?'#7B61FF':'#2A2A50')+';color:'+(page>0?'#fff':'#555')+';border:none;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:600;cursor:'+(page>0?'pointer':'default')+'">\u2190 Prev</button>';
+        o+='<span style="color:#8888AA;font-size:13px">'+(page+1)+' / '+totalPages+'</span>';
+        o+='<button onclick="HP(1)" style="background:'+(page<totalPages-1?'#7B61FF':'#2A2A50')+';color:'+(page<totalPages-1?'#fff':'#555')+';border:none;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:600;cursor:'+(page<totalPages-1?'pointer':'default')+'">Next \u2192</button>';
+        o+='</div>';
+      }
       o+='</div>';
     }
 
@@ -371,9 +391,14 @@ canvas{display:block}
     });
   }
 
-  window.ST=function(t){state.tab=t;render();};
+  window.ST=function(t){state.tab=t;state.historyPage=0;render();};
   window.SP=function(p){state.period=p;fetchChart(state.selectedId,p);render();};
   window.SC=function(id){state.selectedId=id;fetchChart(id,state.period);render();};
+  window.HP=function(dir){
+    var total=Math.ceil(TRANSACTIONS.length/10);
+    var np=state.historyPage+dir;
+    if(np>=0&&np<total){state.historyPage=np;render();window.scrollTo(0,0);}
+  };
 
   // ---- INIT ----
   render();
