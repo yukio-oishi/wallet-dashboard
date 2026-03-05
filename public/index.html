@@ -6,11 +6,10 @@
 <title>Crypto Wallet Dashboard</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{background:#0B0B1A}
+html,body{background:#0B0B1A;overflow:hidden;width:100%}
 body{font-family:'SF Pro Display','Segoe UI',-apple-system,sans-serif;color:#EEEEF6}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
-.dash{max-width:880px;margin:0 auto;padding:28px 20px 80px;position:relative;z-index:1}
-.glow{position:absolute;top:-200px;left:30%;width:500px;height:500px;background:radial-gradient(circle,rgba(123,97,255,.3) 0%,transparent 70%);pointer-events:none;z-index:0}
+.dash{max-width:880px;margin:0 auto;padding:28px 20px 40px;position:relative}
 
 /* Header */
 .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;gap:8px}
@@ -96,7 +95,7 @@ canvas{display:block}
 
 /* ---- MOBILE ---- */
 @media(max-width:680px){
-  .dash{padding:16px 12px 100px}
+  .dash{padding:16px 12px 40px}
   .header{margin-bottom:16px}
   .header-title{font-size:16px}
   .balance-amount{font-size:28px}
@@ -120,7 +119,6 @@ canvas{display:block}
 </style>
 </head>
 <body>
-<div class="glow"></div>
 <div class="dash" id="app"></div>
 
 <script>
@@ -386,6 +384,9 @@ canvas{display:block}
         var coin=s.coins.find(function(x){return x.id===cid;});
         drawChart(cv,s.charts[cid+"_7D"]||[],coin&&coin.change24h>=0?"#00D68F":"#FF4C6A",false,false);
       });
+      // Tell parent iframe our height
+      var h=document.getElementById("app").scrollHeight+40;
+      window.parent.postMessage({walletHeight:h},"*");
     });
   }
 
@@ -395,7 +396,7 @@ canvas{display:block}
   window.HP=function(dir){
     var total=Math.ceil(TRANSACTIONS.length/10);
     var np=state.historyPage+dir;
-    if(np>=0&&np<total){state.historyPage=np;render();window.scrollTo(0,0);}
+    if(np>=0&&np<total){state.historyPage=np;render();}
   };
 
   // ---- INIT ----
