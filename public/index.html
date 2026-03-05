@@ -9,7 +9,7 @@
 body{background:#0B0B1A;font-family:'SF Pro Display','Segoe UI',-apple-system,sans-serif;color:#EEEEF6;min-height:100%;-webkit-overflow-scrolling:touch}
 html{height:100%}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
-.dash{max-width:880px;margin:0 auto;padding:28px 20px 60px;position:relative;z-index:1}
+.dash{max-width:880px;margin:0 auto;padding:28px 20px 80px;position:relative;z-index:1}
 .glow{position:fixed;top:-200px;left:30%;width:500px;height:500px;background:radial-gradient(circle,rgba(123,97,255,.3) 0%,transparent 70%);pointer-events:none;z-index:0}
 
 /* Header */
@@ -122,18 +122,38 @@ canvas{display:block}
 
 <script>
 (function(){
-  var HOLDINGS_AMT={bitcoin:9.2828,ethereum:95.1441,solana:363.1064};
-  var FALLBACK={bitcoin:{usd:68500,ch:2.25},ethereum:{usd:2005,ch:4.41},solana:{usd:87.56,ch:4.05}};
+  var HOLDINGS_AMT={bitcoin:9.2828,ethereum:95.1441,solana:363.1064,"bitcoin-cash":1.3500,"avalanche-2":18.7500};
+  var FALLBACK={bitcoin:{usd:68500,ch:2.25},ethereum:{usd:2005,ch:4.41},solana:{usd:87.56,ch:4.05},"bitcoin-cash":{usd:340,ch:2.15},"avalanche-2":{usd:38.50,ch:3.28}};
   var COINS=[
     {id:"bitcoin",symbol:"BTC",name:"Bitcoin",color:"#F7931A"},
     {id:"ethereum",symbol:"ETH",name:"Ethereum",color:"#627EEA"},
-    {id:"solana",symbol:"SOL",name:"Solana",color:"#9945FF"}
+    {id:"solana",symbol:"SOL",name:"Solana",color:"#9945FF"},
+    {id:"bitcoin-cash",symbol:"BCH",name:"Bitcoin Cash",color:"#8DC351"},
+    {id:"avalanche-2",symbol:"AVAX",name:"Avalanche",color:"#E84142"}
   ];
   var PERIODS=["24H","7D","30D","1Y"];
   var PERIOD_DAYS={"24H":1,"7D":7,"30D":30,"1Y":365};
+  var SYM_TO_ID={BTC:"bitcoin",ETH:"ethereum",SOL:"solana",BCH:"bitcoin-cash",AVAX:"avalanche-2"};
   var TRANSACTIONS=[
     {type:"send",symbol:"SOL",amount:1194098,date:"2026-02-26",time:"15:42:08",txHash:"9Fm4...bT7n",to:"3aLk...mN5v"},
-    {type:"receive",symbol:"SOL",amount:1194098,date:"2026-02-24",time:"09:14:32",txHash:"5Kj8...xR3m",from:"7vH2...pQ9w"}
+    {type:"receive",symbol:"SOL",amount:1194098,date:"2026-02-24",time:"09:14:32",txHash:"5Kj8...xR3m",from:"7vH2...pQ9w"},
+    {type:"send",symbol:"ETH",amount:4.8559,date:"2026-01-22",time:"11:28:45",txHash:"0xA3f...8d2E",to:"0x91B...4c7F"},
+    {type:"send",symbol:"BTC",amount:0.7172,date:"2026-01-10",time:"08:55:13",txHash:"bc1q...vx7m",to:"bc1p...hk3n"},
+    {type:"send",symbol:"BCH",amount:0.15,date:"2025-12-30",time:"18:51:04",txHash:"qz4m...xK7p",to:"qr9v...vN3m"},
+    {type:"receive",symbol:"SOL",amount:63.1064,date:"2025-12-28",time:"20:03:51",txHash:"7Hp2...nQ4k",from:"Dv8R...tY6j"},
+    {type:"send",symbol:"AVAX",amount:1.25,date:"2025-12-18",time:"13:07:42",txHash:"0xC8n...pV3w",to:"0xB5y...rQ8m"},
+    {type:"receive",symbol:"ETH",amount:20.0000,date:"2025-12-05",time:"14:17:29",txHash:"0x7Bc...3eF1",from:"0xD42...9a1B"},
+    {type:"receive",symbol:"BTC",amount:1.5000,date:"2025-11-20",time:"16:44:07",txHash:"3Kn8...pW2r",from:"bc1q...dm5z"},
+    {type:"receive",symbol:"BCH",amount:1.0,date:"2025-11-08",time:"19:22:35",txHash:"qp7h...tK7n",from:"qq2w...bN2v"},
+    {type:"send",symbol:"SOL",amount:200.0000,date:"2025-10-12",time:"10:32:56",txHash:"Bm3x...kR9w",to:"FqN4...vP8s"},
+    {type:"receive",symbol:"AVAX",amount:5.0,date:"2025-10-03",time:"21:15:48",txHash:"0xQ3m...hW9r",from:"0x7xK...jT4s"},
+    {type:"receive",symbol:"BTC",amount:3.5000,date:"2025-09-03",time:"13:21:38",txHash:"f7Dn...sT4q",from:"3J98...QzHm"},
+    {type:"receive",symbol:"BCH",amount:0.5,date:"2025-08-28",time:"06:52:17",txHash:"qz8n...nR8k",from:"qr5f...wY5p"},
+    {type:"receive",symbol:"ETH",amount:30.0000,date:"2025-08-18",time:"09:58:14",txHash:"0xE1d...5bA7",from:"0x8F3...2c6D"},
+    {type:"receive",symbol:"AVAX",amount:15.0,date:"2025-08-08",time:"11:36:53",txHash:"0xJ2k...eW5m",from:"0xUq8...pA3n"},
+    {type:"receive",symbol:"SOL",amount:500.0000,date:"2025-07-20",time:"17:46:33",txHash:"Hn5v...aX8m",from:"9wK3...jR7e"},
+    {type:"receive",symbol:"ETH",amount:50.0000,date:"2025-07-02",time:"22:09:41",txHash:"0x4Ca...9dF2",from:"0xB71...6e8A"},
+    {type:"receive",symbol:"BTC",amount:5.0000,date:"2025-06-15",time:"07:33:22",txHash:"a9Qr...mL6j",from:"1A1z...BbF2"}
   ];
 
   var state={
@@ -146,7 +166,9 @@ canvas{display:block}
   var LOGOS={
     bitcoin:'<svg width="W" height="W" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#F7931A"/><path d="M22.5 14.2c.3-2-1.2-3.1-3.3-3.8l.7-2.7-1.7-.4-.7 2.6c-.4-.1-.9-.2-1.4-.3l.7-2.6-1.7-.4-.7 2.7c-.3-.1-.7-.2-1-.2l-2.3-.6-.4 1.8s1.2.3 1.2.3c.7.2.8.6.8 1l-.8 3.2c0 0 .1 0 .1 0l-.1 0-1.1 4.5c-.1.2-.3.5-.7.4 0 0-1.2-.3-1.2-.3l-.8 1.9 2.2.6c.4.1.8.2 1.2.3l-.7 2.8 1.7.4.7-2.7c.5.1.9.2 1.4.3l-.7 2.7 1.7.4.7-2.8c2.9.5 5.1.3 6-2.3.7-2.1 0-3.3-1.5-4.1 1.1-.3 1.9-1 2.1-2.4zm-3.8 5.3c-.5 2.1-4.1 1-5.2.7l.9-3.7c1.2.3 4.9.9 4.3 3zm.5-5.4c-.5 1.9-3.4.9-4.4.7l.8-3.4c1 .2 4.1.7 3.6 2.7z" fill="white"/></svg>',
     ethereum:'<svg width="W" height="W" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#627EEA"/><path d="M16.5 4v8.9l7.5 3.3L16.5 4z" fill="white" fill-opacity=".6"/><path d="M16.5 4L9 16.2l7.5-3.3V4z" fill="white"/><path d="M16.5 21.9v6.1l7.5-10.4-7.5 4.3z" fill="white" fill-opacity=".6"/><path d="M16.5 28v-6.1L9 17.6l7.5 10.4z" fill="white"/><path d="M16.5 20.6l7.5-4.4-7.5-3.3v7.7z" fill="white" fill-opacity=".2"/><path d="M9 16.2l7.5 4.4v-7.7L9 16.2z" fill="white" fill-opacity=".5"/></svg>',
-    solana:'<svg width="W" height="W" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#111"/><defs><linearGradient id="sg" x1="6" y1="24" x2="26" y2="8" gradientUnits="userSpaceOnUse"><stop stop-color="#9945FF"/><stop offset=".5" stop-color="#19FB9B"/><stop offset="1" stop-color="#00D1FF"/></linearGradient></defs><path d="M9.2 20.8c.1-.1.3-.2.5-.2h14.7c.3 0 .5.4.3.6l-2.5 2.5c-.1.1-.3.2-.5.2H7c-.3 0-.5-.4-.3-.6l2.5-2.5z" fill="url(#sg)"/><path d="M9.2 8.2c.1-.1.3-.2.5-.2h14.7c.3 0 .5.4.3.6l-2.5 2.5c-.1.1-.3.2-.5.2H7c-.3 0-.5-.4-.3-.6l2.5-2.5z" fill="url(#sg)"/><path d="M22.2 14.4c-.1-.1-.3-.2-.5-.2H7c-.3 0-.5.4-.3.6l2.5 2.5c.1.1.3.2.5.2h14.7c.3 0 .5-.4.3-.6l-2.5-2.5z" fill="url(#sg)"/></svg>'
+    solana:'<svg width="W" height="W" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#111"/><defs><linearGradient id="sg" x1="6" y1="24" x2="26" y2="8" gradientUnits="userSpaceOnUse"><stop stop-color="#9945FF"/><stop offset=".5" stop-color="#19FB9B"/><stop offset="1" stop-color="#00D1FF"/></linearGradient></defs><path d="M9.2 20.8c.1-.1.3-.2.5-.2h14.7c.3 0 .5.4.3.6l-2.5 2.5c-.1.1-.3.2-.5.2H7c-.3 0-.5-.4-.3-.6l2.5-2.5z" fill="url(#sg)"/><path d="M9.2 8.2c.1-.1.3-.2.5-.2h14.7c.3 0 .5.4.3.6l-2.5 2.5c-.1.1-.3.2-.5.2H7c-.3 0-.5-.4-.3-.6l2.5-2.5z" fill="url(#sg)"/><path d="M22.2 14.4c-.1-.1-.3-.2-.5-.2H7c-.3 0-.5.4-.3.6l2.5 2.5c.1.1.3.2.5.2h14.7c.3 0 .5-.4.3-.6l-2.5-2.5z" fill="url(#sg)"/></svg>',
+    "bitcoin-cash":'<svg width="W" height="W" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#8DC351"/><g transform="rotate(-35 16 16)"><path d="M22.5 14.2c.3-2-1.2-3.1-3.3-3.8l.7-2.7-1.7-.4-.7 2.6c-.4-.1-.9-.2-1.4-.3l.7-2.6-1.7-.4-.7 2.7c-.3-.1-.7-.2-1-.2l-2.3-.6-.4 1.8s1.2.3 1.2.3c.7.2.8.6.8 1l-.8 3.2c0 0 .1 0 .1 0l-.1 0-1.1 4.5c-.1.2-.3.5-.7.4 0 0-1.2-.3-1.2-.3l-.8 1.9 2.2.6c.4.1.8.2 1.2.3l-.7 2.8 1.7.4.7-2.7c.5.1.9.2 1.4.3l-.7 2.7 1.7.4.7-2.8c2.9.5 5.1.3 6-2.3.7-2.1 0-3.3-1.5-4.1 1.1-.3 1.9-1 2.1-2.4zm-3.8 5.3c-.5 2.1-4.1 1-5.2.7l.9-3.7c1.2.3 4.9.9 4.3 3zm.5-5.4c-.5 1.9-3.4.9-4.4.7l.8-3.4c1 .2 4.1.7 3.6 2.7z" fill="white"/></g></svg>',
+    "avalanche-2":'<svg width="W" height="W" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#E84142"/><path d="M11.2 22h-3c-.5 0-.7-.3-.5-.7L15.5 8.5c.2-.4.6-.4.8 0l2 3.5c.2.3.2.7 0 1l-5.4 9.3c-.2.3-.5.4-.8.4h0zm8.5 0h-2.8c-.5 0-.7-.3-.5-.7l3.3-5.7c.2-.4.7-.4.9 0l3.3 5.7c.2.4 0 .7-.5.7h-3.7z" fill="white"/></svg>'
   };
   function logo(id,s){return LOGOS[id].replace(/W/g,s);}
 
@@ -276,7 +298,6 @@ canvas{display:block}
     var total=s.coins.reduce(function(a,c){return a+(c.holdingUSD||0);},0);
     var totCh=total?s.coins.reduce(function(a,c){return a+((c.holdingUSD||0)/total)*(c.change24h||0);},0):0;
     var isUp=sel.change24h>=0;
-    var solP=(s.coins.find(function(c){return c.id==="solana";})||{}).price||0;
     var statusColor=s.lastUpdated?"#00D68F":s.error?"#FFA500":"#8888AA";
     var statusText=s.lastUpdated?"Live · "+s.lastUpdated.toLocaleTimeString():s.error?"Offline · retrying...":"Connecting...";
     var statusAnim=s.lastUpdated?"animation:pulse 2s infinite":"";
@@ -336,8 +357,11 @@ canvas{display:block}
     if(s.tab==="history"){
       o+='<div class="section"><div class="holdings-head">Transaction History</div>';
       TRANSACTIONS.forEach(function(tx){
-        var isR=tx.type==="receive";var usdV=tx.amount*solP;
-        o+='<div class="tx-row"><div class="tx-info"><div class="tx-icon">'+logo("solana",mob?34:40)+'<div class="tx-badge" style="background:'+(isR?"#00D68F":"#FF4C6A")+'">'+(isR?"\u2193":"\u2191")+'</div></div>';
+        var isR=tx.type==="receive";
+        var coinId=SYM_TO_ID[tx.symbol]||"bitcoin";
+        var coinPrice=(s.coins.find(function(c){return c.id===coinId;})||{}).price||0;
+        var usdV=tx.amount*coinPrice;
+        o+='<div class="tx-row"><div class="tx-info"><div class="tx-icon">'+logo(coinId,mob?34:40)+'<div class="tx-badge" style="background:'+(isR?"#00D68F":"#FF4C6A")+'">'+(isR?"\u2193":"\u2191")+'</div></div>';
         o+='<div class="tx-detail"><div class="tx-title"><span class="tx-name">'+(isR?"Received":"Sent")+' '+tx.symbol+'</span><span class="tx-tag" style="background:'+(isR?"#00D68F":"#FF4C6A")+'18;color:'+(isR?"#00D68F":"#FF4C6A")+'">'+(isR?"In":"Out")+'</span></div>';
         o+='<div class="tx-date">'+tx.date+' '+tx.time+'</div>';
         o+='<div class="tx-addr">'+(isR?"From: "+tx.from:"To: "+tx.to)+' | Tx: '+tx.txHash+'</div></div></div>';
@@ -368,7 +392,7 @@ canvas{display:block}
   setTimeout(fetchPrices,500);
   setInterval(fetchPrices,30000);
 
-  var pq=[{id:"bitcoin",p:"30D"},{id:"bitcoin",p:"7D"},{id:"ethereum",p:"7D"},{id:"solana",p:"7D"}];
+  var pq=[{id:"bitcoin",p:"30D"},{id:"bitcoin",p:"7D"},{id:"ethereum",p:"7D"},{id:"solana",p:"7D"},{id:"bitcoin-cash",p:"7D"},{id:"avalanche-2",p:"7D"}];
   var rq=[];
   COINS.forEach(function(c){PERIODS.forEach(function(p){
     if(!pq.some(function(x){return x.id===c.id&&x.p===p;}))rq.push({id:c.id,p:p});
