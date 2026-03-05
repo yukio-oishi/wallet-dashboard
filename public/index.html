@@ -2,15 +2,15 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Crypto Wallet Dashboard</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0B0B1A;font-family:'SF Pro Display','Segoe UI',-apple-system,sans-serif;color:#EEEEF6;min-height:100%;-webkit-overflow-scrolling:touch}
-html{height:100%}
+html,body{background:#0B0B1A;min-height:100%;overflow-x:hidden}
+body{font-family:'SF Pro Display','Segoe UI',-apple-system,sans-serif;color:#EEEEF6;-webkit-overflow-scrolling:touch;overflow-y:scroll}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
 .dash{max-width:880px;margin:0 auto;padding:28px 20px 80px;position:relative;z-index:1}
-.glow{position:fixed;top:-200px;left:30%;width:500px;height:500px;background:radial-gradient(circle,rgba(123,97,255,.3) 0%,transparent 70%);pointer-events:none;z-index:0}
+.glow{position:absolute;top:-200px;left:30%;width:500px;height:500px;background:radial-gradient(circle,rgba(123,97,255,.3) 0%,transparent 70%);pointer-events:none;z-index:0}
 
 /* Header */
 .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;gap:8px}
@@ -232,18 +232,6 @@ canvas{display:block}
       }
       canvas.onmousemove=function(e){handleXY(e.clientX);};
       canvas.onmouseleave=function(){tip.style.display="none";};
-      var touchStartX=0,touchStartY=0,isHoriz=false;
-      canvas.ontouchstart=function(e){
-        touchStartX=e.touches[0].clientX;touchStartY=e.touches[0].clientY;isHoriz=false;
-      };
-      canvas.ontouchmove=function(e){
-        var dx=Math.abs(e.touches[0].clientX-touchStartX);
-        var dy=Math.abs(e.touches[0].clientY-touchStartY);
-        if(!isHoriz&&dy>dx)return; // vertical scroll - don't interfere
-        if(dx>10)isHoriz=true;
-        if(isHoriz){e.preventDefault();handleXY(e.touches[0].clientX);}
-      };
-      canvas.ontouchend=function(){if(isHoriz)setTimeout(function(){tip.style.display="none";},1200);};
     }
   }
 
